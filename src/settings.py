@@ -1,8 +1,21 @@
 WIDTH = 1280
 HEIGTH = 720
+
 FPS = 60
+
 TILESIZE = 64
 
+PLAYER_SPEED = 3
+
+SPRITE_WIDTH = 64
+SPRITE_HEIGHT = 64
+
+BALL_WIDTH = 120
+BALL_HEIGHT = 120
+
+ANIMATION_SPEED = 0.2
+ATTACK_ANIMATION_SPEED = 0.05
+BALL_SPEED = 5
 WORLD_MAP = [
     ['x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x'],
     ['x',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','x'],

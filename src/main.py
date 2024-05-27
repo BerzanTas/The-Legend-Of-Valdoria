@@ -12,7 +12,7 @@ class Game:
         self.level = Level()
         # changing the title of the window
         pygame.display.set_caption("The Legend of Valdoria")
-        self.vid = Video("Intro/Valdoria Intro.mp4")
+        self.vid = Video("../Intro/Valdoria Intro.mp4")
         self.vid.set_size((WIDTH, HEIGTH))
     
     def intro(self):
@@ -40,7 +40,7 @@ class Game:
                     pygame.quit()
                     sys.exit()
             
-            self.screen.fill('black')
+            self.screen.fill('gray')
             self.level.run()
             pygame.display.update()
             self.clock.tick(FPS)
