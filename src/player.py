@@ -4,8 +4,8 @@ from settings import *
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos, groups):
         super().__init__(groups)
-        self.sprite_sheet = pygame.image.load("../img/playersprite.png").convert_alpha()
-        self.attack_sheet = pygame.image.load("../img/attack.png").convert_alpha()
+        self.sprite_sheet = pygame.image.load("img/playersprite.png").convert_alpha()
+        self.attack_sheet = pygame.image.load("img/attack.png").convert_alpha()
         self.image = self.get_sprite(self.sprite_sheet, 0, 11, SPRITE_WIDTH, SPRITE_HEIGHT)  # Pierwsza klatka z 11 rzędu (idle)
         self.rect = self.image.get_rect(topleft=pos)
 
@@ -15,11 +15,12 @@ class Player(pygame.sprite.Sprite):
             "left": self.create_animation(self.sprite_sheet, 9, 9, SPRITE_WIDTH, SPRITE_HEIGHT),
             "down": self.create_animation(self.sprite_sheet, 10, 9, SPRITE_WIDTH, SPRITE_HEIGHT),
             "right": self.create_animation(self.sprite_sheet, 11, 9, SPRITE_WIDTH, SPRITE_HEIGHT),
-            "attack_up": self.create_attack_animation(0, 8, SPRITE_WIDTH, SPRITE_HEIGHT),
-            "attack_left": self.create_attack_animation(1, 8, SPRITE_WIDTH, SPRITE_HEIGHT),
-            "attack_down": self.create_attack_animation(2, 8, SPRITE_WIDTH, SPRITE_HEIGHT),
-            "attack_right": self.create_attack_animation(3, 8, SPRITE_WIDTH, SPRITE_HEIGHT),
+            "attack_up": self.create_attack_animation(47, 8),
+            "attack_left": self.create_attack_animation(50, 8),
+            "attack_down": self.create_attack_animation(53, 8),
+            "attack_right": self.create_attack_animation(56, 8),
         }
+
         self.current_animation = None
         self.current_frame = 0
         self.animation_speed = ANIMATION_SPEED
@@ -37,17 +38,17 @@ class Player(pygame.sprite.Sprite):
         }
         self.idle_frame = self.idle_frames["right"]
 
-    def get_sprite(self, sheet, x, y, width, height):
+    def get_sprite(self, sheet, x, y, width, height, offset = 0):
         image = pygame.Surface((width, height), pygame.SRCALPHA)
-        image.blit(sheet, (0, 0), (x * width, y * height, width, height))
+        image.blit(sheet, (0, 0), (x * width + offset, y * height, width, height))
         return image
 
-    def create_animation(self, sheet, row, num_frames, width, height):
-        return [self.get_sprite(sheet, i, row, width, height) for i in range(num_frames)]
+    def create_animation(self, sheet, row, num_frames, width, heigth):
+        return [self.get_sprite(sheet, i, row, width, heigth) for i in range(num_frames)]
 
-    def create_attack_animation(self, row, num_frames, width, height):
+    def create_attack_animation(self, row, num_frames, width = 64, heigth = 64):
         # Wczytujemy co czwartą klatkę, zaczynając od pierwszej klatki
-        return [self.get_sprite(self.attack_sheet, 3 * i, row, width, height) for i in range(num_frames)]
+        return [self.get_sprite(self.sprite_sheet, 3 * i, row, width = width, height = heigth, offset=64) for i in range(num_frames)]
 
     def update(self):
         keys = pygame.key.get_pressed()
