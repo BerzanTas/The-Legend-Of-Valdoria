@@ -14,7 +14,7 @@ BALL_WIDTH = 120
 BALL_HEIGHT = 120
 
 ANIMATION_SPEED = 0.2
-ATTACK_ANIMATION_SPEED = 0.05
+ATTACK_ANIMATION_SPEED = 0.2
 BALL_SPEED = 5
 WORLD_MAP = [
     ['x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x'],
