@@ -4,10 +4,14 @@ from settings import *
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos, groups):
         super().__init__(groups)
-        self.sprite_sheet = pygame.image.load("img/playersprite.png").convert_alpha()
-        self.attack_sheet = pygame.image.load("img/attack.png").convert_alpha()
+        self.sprite_sheet = pygame.image.load("../img/playersprite.png").convert_alpha()
+        self.attack_sheet = pygame.image.load("../img/attack.png").convert_alpha()
         self.image = self.get_sprite(self.sprite_sheet, 0, 11, SPRITE_WIDTH, SPRITE_HEIGHT)  # Pierwsza klatka z 11 rzędu (idle)
         self.rect = self.image.get_rect(topleft=pos)
+
+        #Inicjalizacja kierunku ruchu
+        self.direction = pygame.math.Vector2(0, 0)
+
 
         # Animacje
         self.animations = {
@@ -54,22 +58,24 @@ class Player(pygame.sprite.Sprite):
         keys = pygame.key.get_pressed()
         if not self.is_attacking:
             self.current_animation = None
+            self.direction.x = 0
+            self.direction.y = 0
 
             if keys[pygame.K_UP]:
                 self.current_animation = self.animations["up"]
-                self.rect.y -= self.speed
+                self.direction.y = -1
                 self.idle_frame = self.idle_frames["up"]
             elif keys[pygame.K_LEFT]:
                 self.current_animation = self.animations["left"]
-                self.rect.x -= self.speed
+                self.direction.x = -1
                 self.idle_frame = self.idle_frames["left"]
             elif keys[pygame.K_DOWN]:
                 self.current_animation = self.animations["down"]
-                self.rect.y += self.speed
+                self.direction.y = 1
                 self.idle_frame = self.idle_frames["down"]
             elif keys[pygame.K_RIGHT]:
                 self.current_animation = self.animations["right"]
-                self.rect.x += self.speed
+                self.direction.x = 1
                 self.idle_frame = self.idle_frames["right"]
             elif keys[pygame.K_SPACE]:
                 self.is_attacking = True
@@ -85,6 +91,23 @@ class Player(pygame.sprite.Sprite):
             if self.current_frame >= len(self.current_animation) - 1:
                 self.is_attacking = False
                 self.current_frame = 0
+
+        # Aktualizacja pozycji gracza
+        self.rect.x += self.direction.x * self.speed
+        self.rect.y += self.direction.y * self.speed
+
+
+        # Sprawdzenie granic mapy
+        if self.rect.left < 0:
+            self.rect.left = 0
+        if self.rect.right > MAP_WIDTH:
+            self.rect.right = MAP_WIDTH
+        if self.rect.top < 0:
+            self.rect.top = 0
+        if self.rect.bottom > MAP_HEIGHT:
+            self.rect.bottom = MAP_HEIGHT
+
+
 
         # Aktualizacja ramki animacji
         if self.current_animation:

@@ -40,7 +40,7 @@ class Game:
                     pygame.quit()
                     sys.exit()
             
-            self.screen.fill('gray')
+            self.screen.fill('green')
             self.level.run()
             pygame.display.update()
             self.clock.tick(FPS)
