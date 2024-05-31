@@ -30,7 +30,7 @@ class Level:
         # Pobierz powierzchnię wyświetlania
         self.display_surface = pygame.display.get_surface()
 
-        self.grass_image = pygame.image.load("../img/grass.png").convert_alpha()
+        self.grass_image = pygame.image.load("img/grass.png").convert_alpha()
         # Grupy sprite'ów (dodanie warstwowania)
         self.visible_sprites = pygame.sprite.LayeredUpdates()
         self.obstacle_sprites = pygame.sprite.Group()
@@ -48,11 +48,12 @@ class Level:
                 if col == 'x':
                     Tile((x, y), (self.visible_sprites, self.obstacle_sprites), 'rock')
                 elif col == 'p':
-                    self.player = Player((x, y), (self.visible_sprites,))
+                    self.player = Player((x, y), (self.visible_sprites,), self.obstacle_sprites)
+                    print(self.player.rect)
                     self.visible_sprites.change_layer(self.player, 1)
                 elif col == 'c':
                     castle_pos = (x, y)
-                    self.castle = Castle(castle_pos, (self.visible_sprites,))
+                    self.castle = Castle(castle_pos, (self.visible_sprites, self.obstacle_sprites))
                     self.visible_sprites.change_layer(self.castle, 2)
 
 
