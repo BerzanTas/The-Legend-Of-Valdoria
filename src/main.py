@@ -1,9 +1,9 @@
 import pygame, sys
-from level import Level
+from level import Level               
 from settings import *
 from pyvidplayer import Video
 
-class Game:
+class Game:                
     def __init__(self) -> None:
         # setup
         pygame.init()

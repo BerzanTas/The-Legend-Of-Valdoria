@@ -3,6 +3,7 @@ from settings import *
 from tile import Tile
 from player import Player
 from castle import Castle
+from projectile import Fireball
 
 class Camera:
     def __init__(self, width, height):
@@ -34,6 +35,7 @@ class Level:
         # Grupy sprite'ów (dodanie warstwowania)
         self.visible_sprites = pygame.sprite.LayeredUpdates()
         self.obstacle_sprites = pygame.sprite.Group()
+        self.fireball_sprites = pygame.sprite.Group()
 
         # Tworzenie mapy
         self.create_map()
@@ -48,7 +50,7 @@ class Level:
                 if col == 'x':
                     Tile((x, y), (self.visible_sprites, self.obstacle_sprites), 'rock')
                 elif col == 'p':
-                    self.player = Player((x, y), (self.visible_sprites,), self.obstacle_sprites)
+                    self.player = Player((x, y), (self.visible_sprites,), self.obstacle_sprites, self.fireball_sprites, self.visible_sprites)
                     print(self.player.rect)
                     self.visible_sprites.change_layer(self.player, 1)
                 elif col == 'c':
@@ -65,6 +67,8 @@ class Level:
 
         # Aktualizacja kamery
         self.camera.update(self.player)
+
+        self.fireball_sprites.update()
 
         # Rysowanie sprite'ów z przesunięciem kamery
         for sprite in self.visible_sprites:
