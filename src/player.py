@@ -1,12 +1,15 @@
 import pygame
 from settings import *
+from projectile import Fireball
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, groups, obstacle_sprites):
+    def __init__(self, pos, groups, obstacle_sprites, fireball_sprites, visible_sprites):
         super().__init__(groups)
         self.sprite_sheet = pygame.image.load("img/playersprite.png").convert_alpha()
         self.image = self.get_sprite(self.sprite_sheet, 0, 11, SPRITE_WIDTH, SPRITE_HEIGHT)  # Pierwsza klatka z 11 rzędu (idle)
         self.obstacle_sprites = obstacle_sprites
+        self.fireball_sprites = fireball_sprites
+        self.visible_sprites = visible_sprites
 
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
@@ -15,6 +18,9 @@ class Player(pygame.sprite.Sprite):
 
         #Inicjalizacja kierunku ruchu
         self.direction = pygame.math.Vector2(0, 0)
+
+        #countdown dla fireball
+        self.previous_time = pygame.time.get_ticks()
 
 
         # Animacje
@@ -83,15 +89,26 @@ class Player(pygame.sprite.Sprite):
                 self.direction.x = 1
                 self.idle_frame = self.idle_frames["right"]
             elif keys[pygame.K_SPACE]:
-                self.is_attacking = True
-                if self.idle_frame == self.idle_frames["up"]:
-                    self.current_animation = self.animations["attack_up"]
-                elif self.idle_frame == self.idle_frames["left"]:
-                    self.current_animation = self.animations["attack_left"]
-                elif self.idle_frame == self.idle_frames["down"]:
-                    self.current_animation = self.animations["attack_down"]
-                elif self.idle_frame == self.idle_frames["right"]:
-                    self.current_animation = self.animations["attack_right"]
+                self.current_time = pygame.time.get_ticks()
+                self.can_shoot = True if self.current_time - self.previous_time > 1000 else False
+                
+                if self.can_shoot:
+                    self.is_attacking = True
+                    if self.idle_frame == self.idle_frames["up"]:
+                        self.current_animation = self.animations["attack_up"]
+                        self.projectile = Fireball(self.rect.center, (self.visible_sprites, self.fireball_sprites), radius=5, facing = "up", hit_sprites=self.obstacle_sprites)
+                    elif self.idle_frame == self.idle_frames["left"]:
+                        self.current_animation = self.animations["attack_left"]
+                        self.projectile = Fireball(self.rect.center, (self.visible_sprites, self.fireball_sprites), radius=5, facing = "left", hit_sprites=self.obstacle_sprites)
+                    elif self.idle_frame == self.idle_frames["down"]:
+                        self.current_animation = self.animations["attack_down"]
+                        self.projectile = Fireball(self.rect.center, (self.visible_sprites, self.fireball_sprites), radius=5, facing = "down", hit_sprites=self.obstacle_sprites)
+                    elif self.idle_frame == self.idle_frames["right"]:
+                        self.current_animation = self.animations["attack_right"]
+                        self.projectile = Fireball(self.rect.center, (self.visible_sprites, self.fireball_sprites), radius=5, facing = "right", hit_sprites=self.obstacle_sprites)
+                    
+                    self.previous_time = self.current_time
+                
         else:
             if self.current_frame >= len(self.current_animation) - 1:
                 self.is_attacking = False
