@@ -28,6 +28,18 @@ class Fireball(pygame.sprite.Sprite):
         self.start_x = self.rect.x
         self.start_y = self.rect.y
 
+        # efekty głosowe
+        self.fireball_channel = pygame.mixer.Channel(2)
+
+        self.fireball_sound = pygame.mixer.Sound("sounds/effects/fireball.mp3")
+        self.fireball_sound.set_volume(0.3)
+        self.fireball_channel.play(self.fireball_sound)
+
+        self.explosion_sound = pygame.mixer.Sound("sounds/effects/explosion.wav")
+        self.explosion_sound.set_volume(0.3)
+        self.explosion_sound.fadeout(2)
+
+
         if self.facing == "up":
             self.rect.move_ip(-15,-15)
             self.direction = "vertical"
@@ -65,9 +77,12 @@ class Fireball(pygame.sprite.Sprite):
                 self.collide = True
                 self.image_index = 0
                 self.animation_timer = 0
-                #self.image = self.get_sprite(self.sprite_sheet, 0, 0, 48, 48, 5*48)
+                
+                self.fireball_channel.stop()
+                self.fireball_channel.play(self.explosion_sound)
 
-    
+    def play_sound(self, sound):
+        sound.play()
 
     def update(self):
         
@@ -119,6 +134,11 @@ class Laserbeam(pygame.sprite.Sprite):
 
         self.animation = [self.get_sprite(self.sprite_sheet, 0, i, 256, 64) for i in range(7)]
 
+        self.laserbeam_channel = pygame.mixer.Channel(3)
+        self.laserbeam_sound = pygame.mixer.Sound("sounds/effects/laserbeam.mp3")
+        self.laserbeam_sound.set_volume(0.3)
+        
+        self.laserbeam_channel.play(self.laserbeam_sound)
 
         if self.facing == "up":
             self.image = pygame.transform.rotate(self.image, 90)
@@ -136,8 +156,6 @@ class Laserbeam(pygame.sprite.Sprite):
             self.animation = [pygame.transform.flip(i, flip_x=True, flip_y=False) for i in self.animation]
             self.rect.move_ip(-260, -20)
 
-
-
     def get_sprite(self, sheet, x, y, width, height, offset = 0):
         image = pygame.Surface((width, height), pygame.SRCALPHA)
         image.blit(sheet, (0, 0), (x * width, y * height, width, height))
@@ -151,7 +169,6 @@ class Laserbeam(pygame.sprite.Sprite):
 
     
     def update(self):
-
         self.animation_timer += self.animation_speed
         if self.animation_timer >= 1:
             self.animation_timer = 0

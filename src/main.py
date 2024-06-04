@@ -14,6 +14,10 @@ class Game:
         pygame.display.set_caption("The Legend of Valdoria")
         self.vid = Video("Intro/Valdoria Intro.mp4")
         self.vid.set_size((WIDTH, HEIGTH))
+
+        pygame.mixer.music.load("sounds/music/valdoria1.mp3")
+        for i in range(2,6):
+            pygame.mixer.music.queue(f"sounds/music/valdoria{i}.mp3")
     
     def intro(self):
         while self.vid.active:
@@ -33,6 +37,9 @@ class Game:
 
     # main loop
     def run(self):
+        pygame.mixer.music.set_volume(0.1)
+        pygame.mixer.music.play(fade_ms=10000)
+        
         while True:
             # check the events, and if it is QUIT event then close the game
             for event in pygame.event.get():

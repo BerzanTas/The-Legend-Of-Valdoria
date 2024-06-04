@@ -15,8 +15,8 @@ FIREBALL_DELAY = 1
 
 ANIMATION_SPEED = 0.2
 ATTACK_ANIMATION_SPEED = 0.3
-FIREBALL_SPEED = 3
-FIREBALL_RADIUS = 300
+FIREBALL_SPEED = 4
+FIREBALL_RADIUS = 400
 
 
 # UI
@@ -24,7 +24,7 @@ FIREBALL_RADIUS = 300
 BAR_HEIGHT = 20
 HEALTH_BAR_WIDTH = 200
 MANA_BAR_WIDTH = 140
-SPELL_BOX_SIZE = 50
+SPELL_BOX_SIZE = 70
 UI_FONT = 'img/Ubuntu.ttf'
 UI_FONT_SIZE = 22
 
@@ -41,8 +41,8 @@ UI_BORDER_COLOR_ACTIVE = 'gold'
 # informacje o zaklęciach
 
 spell_data = {
-    'fireball': {'cooldown': 2, 'damage': 10, 'img': 'img/spells/fireballicon.png'},
-    #'laserbeam': {'cooldown': 60, 'damage': 80, 'img': 'img/spells/laserbeamicon.png'},
+    'fireball': {'cooldown': 1000, 'damage': 10, 'img': 'img/spells/fireballicon.png'},
+    'laserbeam': {'cooldown': 11000, 'damage': 80, 'img': 'img/spells/laserbeamicon.png'},
     #'energyball': {'cooldown': 40, 'damage': 60, 'img': 'img/spells/energyball/energyBallicon.png'}
 
 }
