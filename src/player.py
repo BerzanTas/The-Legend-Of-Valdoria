@@ -1,6 +1,6 @@
 import pygame
 from settings import *
-from projectile import Fireball
+from projectile import Fireball, Laserbeam
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos, groups, obstacle_sprites, fireball_sprites, visible_sprites):
@@ -40,9 +40,6 @@ class Player(pygame.sprite.Sprite):
         self.animation_speed = ANIMATION_SPEED
         self.is_attacking = False
 
-        # Prędkość poruszania się
-        self.speed = PLAYER_SPEED
-
         # Klatki spoczynkowe dla każdego kierunku
         self.idle_frames = {
             "up": self.get_sprite(self.sprite_sheet, 0, 8, SPRITE_WIDTH, SPRITE_HEIGHT),
@@ -51,6 +48,13 @@ class Player(pygame.sprite.Sprite):
             "right": self.get_sprite(self.sprite_sheet, 0, 11, SPRITE_WIDTH, SPRITE_HEIGHT)
         }
         self.idle_frame = self.idle_frames["right"]
+
+        # staty
+        self.stats = {'health':100, 'mana':70, 'magic':1, 'speed':3}
+        self.health = self.stats['health'] * 0.5
+        self.mana = self.stats['mana'] * 0.8
+        self.exp = 10
+        self.speed = self.stats['speed']
 
     def get_sprite(self, sheet, x, y, width, height, offset = 0):
         image = pygame.Surface((width, height), pygame.SRCALPHA)
@@ -96,18 +100,35 @@ class Player(pygame.sprite.Sprite):
                     self.is_attacking = True
                     if self.idle_frame == self.idle_frames["up"]:
                         self.current_animation = self.animations["attack_up"]
-                        self.projectile = Fireball(self.rect.center, (self.visible_sprites, self.fireball_sprites), radius=5, facing = "up", hit_sprites=self.obstacle_sprites)
+                        self.projectile = Fireball(self.rect.center, (self.visible_sprites, self.fireball_sprites), facing = "up", hit_sprites=self.obstacle_sprites)
                     elif self.idle_frame == self.idle_frames["left"]:
                         self.current_animation = self.animations["attack_left"]
-                        self.projectile = Fireball(self.rect.center, (self.visible_sprites, self.fireball_sprites), radius=5, facing = "left", hit_sprites=self.obstacle_sprites)
+                        self.projectile = Fireball(self.rect.center, (self.visible_sprites, self.fireball_sprites), facing = "left", hit_sprites=self.obstacle_sprites)
                     elif self.idle_frame == self.idle_frames["down"]:
                         self.current_animation = self.animations["attack_down"]
-                        self.projectile = Fireball(self.rect.center, (self.visible_sprites, self.fireball_sprites), radius=5, facing = "down", hit_sprites=self.obstacle_sprites)
+                        self.projectile = Fireball(self.rect.center, (self.visible_sprites, self.fireball_sprites), facing = "down", hit_sprites=self.obstacle_sprites)
                     elif self.idle_frame == self.idle_frames["right"]:
                         self.current_animation = self.animations["attack_right"]
-                        self.projectile = Fireball(self.rect.center, (self.visible_sprites, self.fireball_sprites), radius=5, facing = "right", hit_sprites=self.obstacle_sprites)
+                        self.projectile = Fireball(self.rect.center, (self.visible_sprites, self.fireball_sprites), facing = "right", hit_sprites=self.obstacle_sprites)
                     
                     self.previous_time = self.current_time
+        
+            elif keys[pygame.K_q]:
+                self.is_attacking = True
+                if self.idle_frame == self.idle_frames["up"]:
+                    self.current_animation = self.animations["attack_up"]
+                    self.projectile = Laserbeam(self.rect.center, (self.visible_sprites, self.fireball_sprites), facing = "up", hit_sprites=self.obstacle_sprites)
+                elif self.idle_frame == self.idle_frames["left"]:
+                    self.current_animation = self.animations["attack_left"]
+                    self.projectile = Laserbeam(self.rect.center, (self.visible_sprites, self.fireball_sprites), facing = "left", hit_sprites=self.obstacle_sprites)
+                elif self.idle_frame == self.idle_frames["down"]:
+                    self.current_animation = self.animations["attack_down"]
+                    self.projectile = Laserbeam(self.rect.center, (self.visible_sprites, self.fireball_sprites), facing = "down", hit_sprites=self.obstacle_sprites)
+                elif self.idle_frame == self.idle_frames["right"]:
+                    self.current_animation = self.animations["attack_right"]
+                    self.projectile = Laserbeam(self.rect.center, (self.visible_sprites, self.fireball_sprites), facing = "right", hit_sprites=self.obstacle_sprites)
+                    
+
                 
         else:
             if self.current_frame >= len(self.current_animation) - 1:

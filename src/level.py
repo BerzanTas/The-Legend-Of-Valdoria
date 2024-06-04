@@ -4,6 +4,7 @@ from tile import Tile
 from player import Player
 from castle import Castle
 from projectile import Fireball
+from ui import UI
 
 class Camera:
     def __init__(self, width, height):
@@ -42,6 +43,9 @@ class Level:
 
         self.camera = Camera(len(WORLD_MAP[0]) * TILESIZE, len(WORLD_MAP) * TILESIZE)
 
+        # UI
+        self.ui = UI()
+
     def create_map(self):
         for row_index, row in enumerate(WORLD_MAP):
             for col_index, col in enumerate(row):
@@ -63,12 +67,12 @@ class Level:
         for x in range(0, WIDTH, self.grass_image.get_width()):
             for y in range(0, HEIGTH, self.grass_image.get_height()):
                 self.display_surface.blit(self.grass_image, (x, y))
+                
         self.visible_sprites.update()
-
-        # Aktualizacja kamery
         self.camera.update(self.player)
-
         self.fireball_sprites.update()
+
+        self.ui.display(self.player)
 
         # Rysowanie sprite'ów z przesunięciem kamery
         for sprite in self.visible_sprites:
