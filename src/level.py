@@ -38,6 +38,8 @@ class Level:
         self.visible_sprites = pygame.sprite.LayeredUpdates()
         self.obstacle_sprites = pygame.sprite.Group()
         self.fireball_sprites = pygame.sprite.Group()
+        self.player = None
+
 
         # Tworzenie mapy
         self.create_map()
@@ -52,21 +54,24 @@ class Level:
             for col_index, col in enumerate(row):
                 x = col_index * TILESIZE
                 y = row_index * TILESIZE
+                if col == 'p':
+                    self.player = Player((x, y), (self.visible_sprites,), self.obstacle_sprites, self.fireball_sprites, self.visible_sprites)
+                    self.visible_sprites.change_layer(self.player, 1)
+                    break
+        
+        for row_index, row in enumerate(WORLD_MAP):
+            for col_index, col in enumerate(row):
+                x = col_index * TILESIZE
+                y = row_index * TILESIZE
                 if col == 'x':
                     Tile((x, y), (self.visible_sprites, self.obstacle_sprites), 'rock')
-                elif col == 'p':
-                    self.player = Player((x, y), (self.visible_sprites,), self.obstacle_sprites, self.fireball_sprites, self.visible_sprites)
-                    print(self.player.rect)
-                    self.visible_sprites.change_layer(self.player, 1)
                 elif col == 'c':
                     castle_pos = (x, y)
                     self.castle = Castle(castle_pos, (self.visible_sprites, self.obstacle_sprites))
                     self.visible_sprites.change_layer(self.castle, 2)
                 elif col == 's':
-                    self.slime = Slime((x, y), (self.visible_sprites,self.obstacle_sprites), self.obstacle_sprites, self.visible_sprites)
-                    print(self.slime.rect)
-                    self.visible_sprites.change_layer(self.slime, 2)
-
+                    self.slime = Slime((x, y), (self.visible_sprites, self.obstacle_sprites), self.obstacle_sprites, self.visible_sprites, self.player)
+                    self.visible_sprites.change_layer(self.slime, 1)
     def run(self):
         for x in range(0, WIDTH, self.grass_image.get_width()):
             for y in range(0, HEIGTH, self.grass_image.get_height()):
@@ -80,4 +85,7 @@ class Level:
 
         # Rysowanie sprite'ów z przesunięciem kamery
         for sprite in self.visible_sprites:
-            self.display_surface.blit(sprite.image, self.camera.apply(sprite))
+            if isinstance(sprite, Slime):
+                sprite.draw(self.display_surface, self.camera)
+            else:
+                self.display_surface.blit(sprite.image, self.camera.apply(sprite))

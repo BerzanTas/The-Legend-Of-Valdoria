@@ -81,6 +81,9 @@ class Fireball(pygame.sprite.Sprite):
                 self.fireball_channel.stop()
                 self.fireball_channel.play(self.explosion_sound)
 
+                if hasattr(sprite, 'take_damage'):
+                    sprite.take_damage(spell_data['fireball']['damage'])
+
     def play_sound(self, sound):
         sound.play()
 
@@ -166,6 +169,9 @@ class Laserbeam(pygame.sprite.Sprite):
             if sprite.rect.colliderect(self.rect):
                 self.collide = True
                 print("Laser beam hits target!")
+
+                if hasattr(sprite, 'take_damage'):
+                    sprite.take_damage(spell_data['laserbeam']['damage'])
 
     
     def update(self):

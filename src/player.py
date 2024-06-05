@@ -1,6 +1,7 @@
 import pygame
 from settings import *
 from projectile import Fireball, Laserbeam
+from slime import Slime
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos, groups, obstacle_sprites, fireball_sprites, visible_sprites):
@@ -88,6 +89,13 @@ class Player(pygame.sprite.Sprite):
             seconds = int(miliseconds/1000)
 
         return str(seconds)
+    
+    def take_damage(self, amount):
+        self.health -= amount
+        print(f"Player health: {self.health}")  # Debug print
+        if self.health <= 0:
+            self.health = 0
+            print("Player is dead!") 
     
     def footsteps(self):
         if not self.footstep_channel.get_busy():
@@ -201,18 +209,23 @@ class Player(pygame.sprite.Sprite):
 
 
     def collision(self, direction):
-        if direction == 'horizontal':
-            for sprite in self.obstacle_sprites:
-                if sprite.hitbox.colliderect(self.hitbox):
-                    if self.direction.x > 0:
-                        self.hitbox.right = sprite.hitbox.left
-                    if self.direction.x < 0:
-                        self.hitbox.left = sprite.hitbox.right
+        for sprite in self.obstacle_sprites:
+            if sprite.hitbox.colliderect(self.hitbox):
+                if isinstance(sprite, Slime):
+                    continue  # ignoruj kolizję z slime
+        
+                if direction == 'horizontal':
+                    for sprite in self.obstacle_sprites:
+                        if sprite.hitbox.colliderect(self.hitbox):
+                            if self.direction.x > 0:
+                                self.hitbox.right = sprite.hitbox.left
+                            if self.direction.x < 0:
+                                self.hitbox.left = sprite.hitbox.right
 
-        if direction == 'vertical':
-            for sprite in self.obstacle_sprites:
-                if sprite.hitbox.colliderect(self.hitbox):
-                    if self.direction.y > 0:
-                        self.hitbox.bottom = sprite.hitbox.top
-                    if self.direction.y < 0:
-                        self.hitbox.top = sprite.hitbox.bottom
+                if direction == 'vertical':
+                    for sprite in self.obstacle_sprites:
+                        if sprite.hitbox.colliderect(self.hitbox):
+                            if self.direction.y > 0:
+                                self.hitbox.bottom = sprite.hitbox.top
+                            if self.direction.y < 0:
+                                self.hitbox.top = sprite.hitbox.bottom
