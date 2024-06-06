@@ -2,6 +2,7 @@ import pygame
 from settings import *
 from projectile import Fireball, Laserbeam
 from slime import Slime
+from skeleton import Skeleton
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos, groups, obstacle_sprites, fireball_sprites, visible_sprites):
@@ -213,6 +214,8 @@ class Player(pygame.sprite.Sprite):
             if sprite.hitbox.colliderect(self.hitbox):
                 if isinstance(sprite, Slime):
                     continue  # ignoruj kolizję z slime
+                if isinstance(sprite, Skeleton):
+                    continue
         
                 if direction == 'horizontal':
                     for sprite in self.obstacle_sprites:

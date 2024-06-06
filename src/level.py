@@ -6,6 +6,7 @@ from castle import Castle
 from slime import Slime
 from projectile import Fireball
 from ui import UI
+from skeleton import Skeleton
 
 class Camera:
     def __init__(self, width, height):
@@ -72,6 +73,9 @@ class Level:
                 elif col == 's':
                     self.slime = Slime((x, y), (self.visible_sprites, self.obstacle_sprites), self.obstacle_sprites, self.visible_sprites, self.player)
                     self.visible_sprites.change_layer(self.slime, 1)
+                elif col == 'sk':
+                    self.slime = Skeleton((x, y), (self.visible_sprites, self.obstacle_sprites), self.obstacle_sprites, self.visible_sprites, self.player)
+                    self.visible_sprites.change_layer(self.slime, 1)
     def run(self):
         for x in range(0, WIDTH, self.grass_image.get_width()):
             for y in range(0, HEIGTH, self.grass_image.get_height()):
@@ -89,3 +93,4 @@ class Level:
                 sprite.draw(self.display_surface, self.camera)
             else:
                 self.display_surface.blit(sprite.image, self.camera.apply(sprite))
+    
