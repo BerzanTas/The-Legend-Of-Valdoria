@@ -23,7 +23,7 @@ class Slime(pygame.sprite.Sprite):
         self.alive = True
         self.dying = False
 
-        self.speed = 2  # movement speed slime'a
+        self.speed = 2 # movement speed slime'a
         self.attack_radius = 150
         self.attack_damage = 10
         self.attack_cooldown = 1000  # milliseconds
@@ -35,7 +35,7 @@ class Slime(pygame.sprite.Sprite):
             "move": self.create_animation(self.sprite_sheet, 6, 7, slime_width, slime_height, scale=(64, 64))
         }
 
-        self.animation_speed = ANIMATION_SPEED
+        self.animation_speed = slime_aniamtion
         self.current_frame = 0
         self.current_animation = self.animations["stand"]
         self.last_update_time = pygame.time.get_ticks()
