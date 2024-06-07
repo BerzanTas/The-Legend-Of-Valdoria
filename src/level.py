@@ -2,11 +2,11 @@ import pygame
 from settings import *
 from tile import Tile
 from player import Player
-from castle import Castle
 from slime import Slime
 from projectile import Fireball
 from ui import UI
 from skeleton import Skeleton
+from portal import Portal, Water
 
 class Camera:
     def __init__(self, width, height):
@@ -38,9 +38,9 @@ class Level:
         # Grupy sprite'ów (dodanie warstwowania)
         self.visible_sprites = pygame.sprite.LayeredUpdates()
         self.obstacle_sprites = pygame.sprite.Group()
+        self.walkable_sprites = pygame.sprite.Group()
         self.fireball_sprites = pygame.sprite.Group()
         self.player = None
-
 
         # Tworzenie mapy
         self.create_map()
@@ -65,17 +65,20 @@ class Level:
                 x = col_index * TILESIZE
                 y = row_index * TILESIZE
                 if col == 'x':
-                    Tile((x, y), (self.visible_sprites, self.obstacle_sprites), 'rock')
-                elif col == 'c':
-                    castle_pos = (x, y)
-                    self.castle = Castle(castle_pos, (self.visible_sprites, self.obstacle_sprites))
-                    self.visible_sprites.change_layer(self.castle, 2)
+                    Tile((x, y), (self.visible_sprites, self.obstacle_sprites), 'rock', layer=2)
                 elif col == 's':
                     self.slime = Slime((x, y), (self.visible_sprites, self.obstacle_sprites), self.obstacle_sprites, self.visible_sprites, self.player)
                     self.visible_sprites.change_layer(self.slime, 1)
                 elif col == 'sk':
                     self.slime = Skeleton((x, y), (self.visible_sprites, self.obstacle_sprites), self.obstacle_sprites, self.visible_sprites, self.player)
                     self.visible_sprites.change_layer(self.slime, 1)
+                elif col == "tr1": #drzewo 1
+                    Tile((x, y), (self.visible_sprites, self.obstacle_sprites), 'tree1', layer=2)
+                elif col == "portal":  # portal
+                    Portal((x, y), (self.visible_sprites,))
+                elif col == "w":  #woda
+                    Water((x, y), (self.visible_sprites, self.obstacle_sprites))
+                
     def run(self):
         for x in range(0, WIDTH, self.grass_image.get_width()):
             for y in range(0, HEIGTH, self.grass_image.get_height()):
