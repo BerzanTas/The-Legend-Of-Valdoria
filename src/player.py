@@ -9,17 +9,16 @@ class Player(pygame.sprite.Sprite):
         super().__init__(groups)
         self.sprite_sheet = pygame.image.load("img/playersprite.png").convert_alpha()
         self.image = self.get_sprite(self.sprite_sheet, 0, 11, SPRITE_WIDTH, SPRITE_HEIGHT)  # Pierwsza klatka z 11 rzędu (idle)
+        self.rect = self.image.get_rect(topleft=pos)
+        self.hitbox = self.rect.inflate(-15,-15)
+
         self.obstacle_sprites = obstacle_sprites
         self.fireball_sprites = fireball_sprites
         self.visible_sprites = visible_sprites
 
-        self.rect = self.image.get_rect()
-        self.rect.topleft = pos
-        
-        self.hitbox = self.rect.inflate(-5,-5)
 
         # inicjalizacja kierunku ruchu
-        self.direction = pygame.math.Vector2(0, 0)
+        self.direction = pygame.math.Vector2()
 
         # countdown dla fireball
         self.previous_time_fireball = -2000
@@ -178,25 +177,17 @@ class Player(pygame.sprite.Sprite):
         else:
             self.footstep_channel.stop()
 
-
-
-        # Aktualizacja pozycji gracza
-        self.hitbox.x += self.direction.x * self.speed
-        self.collision('horizontal')
-        self.hitbox.y += self.direction.y * self.speed
-        self.collision('vertical')
-        self.rect.center = self.hitbox.center
-
+        self.move(self.speed)
 
         # Sprawdzenie granic mapy
-        if self.rect.left < 0:
-            self.rect.left = 0
-        if self.rect.right > MAP_WIDTH:
-            self.rect.right = MAP_WIDTH
-        if self.rect.top < 0:
-            self.rect.top = 0
-        if self.rect.bottom > MAP_HEIGHT:
-            self.rect.bottom = MAP_HEIGHT
+        if self.hitbox.left < 0:
+            self.hitbox.left = 0
+        if self.hitbox.right > MAP_WIDTH:
+            self.hitbox.right = MAP_WIDTH
+        if self.hitbox.top < 0:
+            self.hitbox.top = 0
+        if self.hitbox.bottom > MAP_HEIGHT:
+            self.hitbox.bottom = MAP_HEIGHT
 
 
 
@@ -207,6 +198,16 @@ class Player(pygame.sprite.Sprite):
             self.image = self.current_animation[int(self.current_frame)]
         else:
             self.image = self.idle_frame  # Postać w spoczynku
+
+    def move(self, speed):
+        if self.direction.magnitude() != 0:
+            self.direction = self.direction.normalize()
+        # Aktualizacja pozycji gracza
+        self.hitbox.x += self.direction.x * speed
+        self.collision('horizontal')
+        self.hitbox.y += self.direction.y * speed
+        self.collision('vertical')
+        self.rect.center = self.hitbox.center
 
 
     def collision(self, direction):

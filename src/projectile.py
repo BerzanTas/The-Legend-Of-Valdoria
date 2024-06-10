@@ -9,6 +9,10 @@ class Fireball(pygame.sprite.Sprite):
         self.sprite_sheet = pygame.image.load("img/spells/fireball.png").convert_alpha()
         self.image = self.get_sprite(self.sprite_sheet, 0, 0, 48, 48)
         self.rect = self.image.get_rect(topleft=pos)
+        self.hitbox = self.rect.inflate(-25,-25)
+        self.start_x = self.hitbox.x
+        self.start_y = self.hitbox.y
+
 
         self.radius = radius
         self.facing = facing
@@ -24,9 +28,6 @@ class Fireball(pygame.sprite.Sprite):
         self.animation_timer = 0
 
         self.hit_sprites = hit_sprites
-        
-        self.start_x = self.rect.x
-        self.start_y = self.rect.y
 
         # efekty głosowe
         self.fireball_channel = pygame.mixer.Channel(2)
@@ -41,30 +42,31 @@ class Fireball(pygame.sprite.Sprite):
 
 
         if self.facing == "up":
-            self.rect.move_ip(-15,-15)
+            self.hitbox.move_ip(-15,-15)
             self.direction = "vertical"
             self.vel = FIREBALL_SPEED * -1
             self.image = pygame.transform.rotate(self.image, 90)
             self.shoot_animation = [pygame.transform.rotate(i, 90) for i in self.shoot_animation]
             self.explode_animation = [pygame.transform.rotate(i, 90) for i in self.explode_animation]
         elif self.facing == "down":
-            self.rect.move_ip(-15,-10)
+            self.hitbox.move_ip(-15,-10)
             self.direction = "vertical"
             self.vel = FIREBALL_SPEED * 1
             self.image = pygame.transform.rotate(self.image, -90)
             self.shoot_animation = [pygame.transform.rotate(i, -90) for i in self.shoot_animation]
             self.explode_animation = [pygame.transform.rotate(i, -90) for i in self.explode_animation]
         elif self.facing == "left":
-            self.rect.move_ip(-40,-20)
+            self.hitbox.move_ip(-40,-20)
             self.direction = "horizontal"
             self.vel = FIREBALL_SPEED * -1
             self.image = pygame.transform.flip(self.image, flip_x=True, flip_y=False)
             self.shoot_animation = [pygame.transform.flip(i, flip_x=True, flip_y=False) for i in self.shoot_animation]
             self.explode_animation = [pygame.transform.flip(i, flip_x=True, flip_y=False) for i in self.explode_animation]
         elif self.facing == "right":
-            self.rect.move_ip(-10,-20)
+            self.hitbox.move_ip(-10,-20)
             self.direction = "horizontal"
             self.vel = FIREBALL_SPEED * 1
+
     
     def get_sprite(self, sheet, x, y, width, height, offset = 0):
         image = pygame.Surface((width, height), pygame.SRCALPHA)
@@ -73,7 +75,7 @@ class Fireball(pygame.sprite.Sprite):
     
     def collision(self):
         for sprite in self.hit_sprites:
-            if sprite.rect.colliderect(self.rect):
+            if sprite.hitbox.colliderect(self.hitbox):
                 self.collide = True
                 self.image_index = 0
                 self.animation_timer = 0
@@ -88,16 +90,26 @@ class Fireball(pygame.sprite.Sprite):
         sound.play()
 
     def update(self):
+        self.current_x = self.hitbox.x
+        self.current_y = self.hitbox.y
         
-        self.current_x = self.rect.x
-        self.current_y = self.rect.y
 
         if not self.collide:
             if self.direction == "vertical":
-                self.rect.y += self.vel
+                self.hitbox.y += self.vel
+                if self.vel > 0:
+                    self.rect.centerx = self.hitbox.centerx+5
+                    self.rect.centery = self.hitbox.centery
+                else:
+                    self.rect.centerx = self.hitbox.centerx-5
+                    self.rect.centery = self.hitbox.centery
+
             elif self.direction == "horizontal":
-                self.rect.x += self.vel
-            
+                self.hitbox.x += self.vel
+                self.rect.centerx = self.hitbox.centerx
+                self.rect.centery = self.hitbox.centery-5
+
+
             self.animation_timer += self.animation_speed
             if self.animation_timer >= 1:
                 self.animation_timer = 0
@@ -127,6 +139,7 @@ class Laserbeam(pygame.sprite.Sprite):
         self.image = self.get_sprite(self.sprite_sheet, 0, 0, 256, 64)
         self.rect = self.image.get_rect(topleft=pos)
         self.rect.move_ip(10, -15)
+        self.hitbox = self.rect.inflate(-10,-40)
 
         self.facing = facing
         self.hit_sprites = hit_sprites
@@ -148,16 +161,21 @@ class Laserbeam(pygame.sprite.Sprite):
             self.rect = self.image.get_rect(topleft=pos)
             self.animation = [pygame.transform.rotate(i, 90) for i in self.animation]
             self.rect.move_ip(-20, -250)
+            self.hitbox = self.rect.inflate(-40,-10)
         elif self.facing == "down":
             self.image = pygame.transform.rotate(self.image, -90)
             self.rect = self.image.get_rect(topleft=pos)
             self.animation = [pygame.transform.rotate(i, -90) for i in self.animation]
             self.rect.move_ip(-30, 5)
+            self.hitbox = self.rect.inflate(-40,-10)
         elif self.facing == "left":
             self.image = pygame.transform.flip(self.image, flip_x=True, flip_y=False)
             self.rect = self.image.get_rect(topleft=pos)
             self.animation = [pygame.transform.flip(i, flip_x=True, flip_y=False) for i in self.animation]
             self.rect.move_ip(-260, -20)
+            self.hitbox = self.rect.inflate(-10,-40)
+
+        
 
     def get_sprite(self, sheet, x, y, width, height, offset = 0):
         image = pygame.Surface((width, height), pygame.SRCALPHA)
@@ -166,7 +184,7 @@ class Laserbeam(pygame.sprite.Sprite):
     
     def collision(self):
         for sprite in self.hit_sprites:
-            if sprite.rect.colliderect(self.rect):
+            if sprite.hitbox.colliderect(self.hitbox):
                 self.collide = True
                 print("Laser beam hits target!")
 
