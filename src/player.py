@@ -10,7 +10,7 @@ class Player(pygame.sprite.Sprite):
         self.sprite_sheet = pygame.image.load("img/playersprite.png").convert_alpha()
         self.image = self.get_sprite(self.sprite_sheet, 0, 11, SPRITE_WIDTH, SPRITE_HEIGHT)  # Pierwsza klatka z 11 rzędu (idle)
         self.rect = self.image.get_rect(topleft=pos)
-        self.hitbox = self.rect.inflate(-15,-15)
+        self.hitbox = self.rect.inflate(-30,-20)
 
         self.obstacle_sprites = obstacle_sprites
         self.fireball_sprites = fireball_sprites
@@ -207,7 +207,8 @@ class Player(pygame.sprite.Sprite):
         self.collision('horizontal')
         self.hitbox.y += self.direction.y * speed
         self.collision('vertical')
-        self.rect.center = self.hitbox.center
+        self.rect.centerx = self.hitbox.centerx
+        self.rect.centery = self.hitbox.centery-10
 
 
     def collision(self, direction):

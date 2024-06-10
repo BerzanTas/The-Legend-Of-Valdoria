@@ -7,13 +7,15 @@ class Tile(pygame.sprite.Sprite):
         if tile_type == 'rock':
             self.image = pygame.image.load("img/rock.png").convert_alpha()
             self.image = pygame.transform.scale(self.image, (40,40))
+            self.rect = self.image.get_rect(topleft=pos)
+            self.hitbox = self.rect.inflate(-5,-30)
         elif tile_type == 'tree1':
             self.image = pygame.image.load("img/tree1.png").convert_alpha()
             self.image = pygame.transform.scale(self.image, (70,80))
+            self.rect = self.image.get_rect(topleft=pos)
+            self.hitbox = self.rect.inflate(-40,-40)
 
-        self.rect = self.image.get_rect(topleft=pos)
-        self.rect = self.rect.inflate(-10, -10) 
-        self.hitbox = self.rect.inflate(-20,-20)
+        
 
         # Przypisz kafelki do określonej warstwy
         for group in groups:
