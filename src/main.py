@@ -5,7 +5,6 @@ from pyvidplayer import Video
 
 class Game:                
     def __init__(self) -> None:
-        # setupq
         pygame.init()
         self.screen = pygame.display.set_mode((WIDTH, HEIGTH))
         self.clock = pygame.time.Clock()

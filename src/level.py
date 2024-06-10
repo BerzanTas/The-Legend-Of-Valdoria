@@ -2,11 +2,31 @@ import pygame
 from settings import *
 from tile import Tile
 from player import Player
-from castle import Castle
 from slime import Slime
 from projectile import Fireball
 from ui import UI
 from skeleton import Skeleton
+
+class Camera:
+    def __init__(self, width, height):
+        self.camera = pygame.Rect(0, 0, width, height)
+        self.width = width
+        self.height = height
+
+    def apply(self, entity):
+        return entity.rect.move(self.camera.topleft)
+
+    def update(self, target):
+        x = -target.rect.centerx + int(WIDTH / 2)
+        y = -target.rect.centery + int(HEIGTH / 2)
+
+        # Limit scroll to map size
+        x = min(0, x)  # Left
+        y = min(0, y)  # Top
+        x = max(-(self.width - WIDTH), x)  # Right
+        y = max(-(self.height - HEIGTH), y)  # Bottom
+
+        self.camera = pygame.Rect(x, y, self.width, self.height)
 
 class Level:
     def __init__(self):
@@ -17,6 +37,7 @@ class Level:
         # Grupy sprite'ów (dodanie warstwowania)
         self.visible_sprites = YSortCameraGroup()
         self.obstacle_sprites = pygame.sprite.Group()
+        self.walkable_sprites = pygame.sprite.Group()
         self.fireball_sprites = pygame.sprite.Group()
 
         # Tworzenie mapy
@@ -44,6 +65,13 @@ class Level:
                 elif col == 'sk':
                     self.slime = Skeleton((x, y), (self.visible_sprites, self.obstacle_sprites), self.obstacle_sprites, self.visible_sprites, self.player)
                     #self.visible_sprites.change_layer(self.slime, 1)
+                elif col == "tr1": #drzewo 1
+                    Tile((x, y), (self.visible_sprites, self.obstacle_sprites), 'tree1', layer=2)
+                elif col == "portal":  # portal
+                    Portal((x, y), (self.visible_sprites,))
+                elif col == "w":  #woda
+                    Water((x, y), (self.visible_sprites, self.obstacle_sprites))
+                
     def run(self):
 
         self.visible_sprites.custom_draw(self.player)
