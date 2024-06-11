@@ -14,6 +14,7 @@ class Level:
         self.display_surface = pygame.display.get_surface()
 
         self.grass_image = pygame.image.load("img/grass.png").convert_alpha()
+        self.grass_image = pygame.transform.scale(self.grass_image, (TILESIZE,TILESIZE))
         # Grupy sprite'ów (dodanie warstwowania)
         self.visible_sprites = YSortCameraGroup()
         self.obstacle_sprites = pygame.sprite.Group()
@@ -50,10 +51,15 @@ class Level:
                     Portal((x, y), (self.visible_sprites,))
                 elif col == "w":  #woda
                     Water((x, y), (self.visible_sprites, self.obstacle_sprites))
-                    
+    
+    
+    def draw_background(self):
+        for row in range(0, MAP_HEIGHT, TILESIZE):
+            for col in range(0, MAP_WIDTH, TILESIZE):
+                self.display_surface.blit(self.grass_image, (col, row))
                 
     def run(self):
-
+        self.draw_background()
         self.visible_sprites.custom_draw(self.player)
         self.visible_sprites.update()
         self.fireball_sprites.update()
