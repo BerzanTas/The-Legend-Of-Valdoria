@@ -7,6 +7,7 @@ class Slime(pygame.sprite.Sprite):
         self.sprite_sheet = pygame.image.load("img/slime.png").convert_alpha()
         self.image = self.get_sprite(self.sprite_sheet, 0, 0, slime_width, slime_height, scale=(64, 64))
         self.obstacle_sprites = obstacle_sprites
+    
         self.visible_sprites = visible_sprites
         self.player = player
 
@@ -23,7 +24,7 @@ class Slime(pygame.sprite.Sprite):
         self.alive = True
         self.dying = False
 
-        self.speed = 2 # movement speed slime'a
+        self.speed = 1 # movement speed slime'a
         self.attack_radius = 260
         self.attack_damage = 10
         self.attack_cooldown = 1000  # milliseconds
@@ -103,6 +104,7 @@ class Slime(pygame.sprite.Sprite):
             self.rect.center = self.hitbox.center  # aktualizacja hitboxu
             self.current_animation = self.animations["move"]
 
+
     def take_damage(self, amount):
         if self.alive:
             self.health -= amount
@@ -112,6 +114,7 @@ class Slime(pygame.sprite.Sprite):
                 self.dying = True
                 self.current_animation = self.animations["death"]
                 self.current_frame = 0
+                self.player.gain_exp(5)
 
     def draw(self, screen, camera):
         camera_pos = self.rect.move(camera.camera.topleft)

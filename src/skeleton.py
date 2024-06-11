@@ -179,6 +179,7 @@ class Skeleton(pygame.sprite.Sprite):
                 self.dying = True
                 self.current_animation = self.animations["death"]
                 self.current_frame = 0
+                self.player.gain_exp(10)
 
     def draw(self, screen, camera):
         camera_pos = self.rect.move(camera.camera.topleft)

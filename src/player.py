@@ -67,8 +67,14 @@ class Player(pygame.sprite.Sprite):
         self.stats = {'health':100, 'mana':70, 'magic':1, 'speed':3}
         self.health = self.stats['health'] * 0.5
         self.mana = self.stats['mana'] * 0.8
-        self.exp = 10
+        self.exp = 0
+        self.level = 1
+        self.next_level_exp = 80
         self.speed = self.stats['speed']
+
+
+        #komunikaty o xp
+        self.xp_texts = []
 
     def get_sprite(self, sheet, x, y, width, height, offset = 0):
         image = pygame.Surface((width, height), pygame.SRCALPHA)
@@ -78,6 +84,17 @@ class Player(pygame.sprite.Sprite):
     def create_animation(self, sheet, row, num_frames, width, heigth):
         return [self.get_sprite(sheet, i, row, width, heigth) for i in range(num_frames)]
 
+    def gain_exp(self, amount):
+        self.exp += amount
+        self.xp_texts.append({'amount': amount, 'timer': pygame.time.get_ticks()})
+        if self.exp >= self.next_level_exp:
+            self.level_up()
+    
+    def level_up(self):
+        self.level += 1
+        self.exp -= self.next_level_exp
+        self.next_level_exp = int(self.next_level_exp * 1.5)
+    
     def create_attack_animation(self, row, num_frames, width = 64, heigth = 64):
         # Wczytujemy co czwartą klatkę, zaczynając od pierwszej klatki
         return [self.get_sprite(self.sprite_sheet, 3 * i, row, width = width, height = heigth, offset=64) for i in range(num_frames)]
@@ -198,6 +215,8 @@ class Player(pygame.sprite.Sprite):
             self.image = self.current_animation[int(self.current_frame)]
         else:
             self.image = self.idle_frame  # Postać w spoczynku
+        
+        self.update_xp_texts()
 
     def move(self, speed):
         if self.direction.magnitude() != 0:
@@ -234,3 +253,9 @@ class Player(pygame.sprite.Sprite):
                                     self.hitbox.bottom = sprite.hitbox.top
                                 if self.direction.y < 0:
                                     self.hitbox.top = sprite.hitbox.bottom
+
+
+    ########## odnośnie lvl ############
+    def update_xp_texts(self):
+        current_time = pygame.time.get_ticks()
+        self.xp_texts = [text for text in self.xp_texts if current_time - text['timer'] <= 1000]
