@@ -12,15 +12,15 @@ class Skeleton(pygame.sprite.Sprite):
 
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
-        self.hitbox = self.rect.inflate(-20, -20)
+        self.hitbox = self.rect.inflate(-50, -50)
 
         self.health = 100
         self.alive = True
         self.dying = False
 
         self.speed = skeleton_speed / 300.0  # Prędkość w pikselach na milisekundę
-        self.follow_radius = 150  # Radius, w którym skeleton zaczyna śledzić gracza
-        self.attack_radius = 20  # Radius ataku
+        self.follow_radius = 260  # Radius, w którym skeleton zaczyna śledzić gracza
+        self.attack_radius = 30  # Radius ataku
         self.attack_damage = 10
         self.attack_cooldown = 2000  # Czas w milisekundach
         self.last_attack_time = 0
@@ -71,7 +71,8 @@ class Skeleton(pygame.sprite.Sprite):
             elif self.dying:
                 self.update_death_animation()
 
-        self.hitbox.center = self.rect.center
+        self.rect.centerx = self.hitbox.centerx
+        self.rect.centery  = self.hitbox.centery - 15
 
         if self.alive and not self.dying:
             distance_to_player = self.get_distance_to_player()
@@ -117,18 +118,18 @@ class Skeleton(pygame.sprite.Sprite):
             self.kill()  
 
     def get_distance_to_player(self):
-        skeleton_center = pygame.math.Vector2(self.rect.center)
-        player_center = pygame.math.Vector2(self.player.rect.center)
+        skeleton_center = pygame.math.Vector2(self.hitbox.center)
+        player_center = pygame.math.Vector2(self.player.hitbox.center)
         return skeleton_center.distance_to(player_center)
 
     def move_towards_player(self):
-        player_pos = pygame.math.Vector2(self.player.rect.center)
-        skeleton_pos = pygame.math.Vector2(self.rect.center)
+        player_pos = pygame.math.Vector2(self.player.hitbox.center)
+        skeleton_pos = pygame.math.Vector2(self.hitbox.center)
         direction = player_pos - skeleton_pos
         if direction.length() != 0:
             direction = direction.normalize()
-        self.rect.center += direction * self.speed
-        self.hitbox.center = self.rect.center
+        self.hitbox.center += direction * self.speed
+        #self.rect.center = self.rect.center
         self.set_move_animation(direction)
 
     def set_move_animation(self, direction):

@@ -33,7 +33,12 @@ class Level:
                 y = row_index * TILESIZE
                 if col == 'p':
                     self.player = Player((x, y), [self.visible_sprites], self.obstacle_sprites, self.fireball_sprites, self.visible_sprites)
-                elif col == 'x':
+        
+        for row_index, row in enumerate(WORLD_MAP):
+            for col_index, col in enumerate(row):
+                x = col_index * TILESIZE
+                y = row_index * TILESIZE
+                if col == 'x':
                     Tile((x, y), (self.visible_sprites, self.obstacle_sprites), 'rock')
                 elif col == 's':
                     self.slime = Slime((x, y), (self.visible_sprites, self.obstacle_sprites), self.obstacle_sprites, self.visible_sprites, self.player)
@@ -59,7 +64,6 @@ class Level:
 
 class YSortCameraGroup(pygame.sprite.Group):
     def __init__(self):
-
         super().__init__()
 
         self.display_surface = pygame.display.get_surface()
@@ -75,5 +79,6 @@ class YSortCameraGroup(pygame.sprite.Group):
         for sprite in sorted(self.sprites(), key=lambda sprite: sprite.rect.centery):
             offset_pos = sprite.rect.topleft - self.offset
             self.display_surface.blit(sprite.image, sprite.rect)
-            pygame.draw.rect(self.display_surface, "red", sprite.hitbox, 3)
+            # Pokazuje wszystkie hitboxy
+            # pygame.draw.rect(self.display_surface, "red", sprite.hitbox, 3)
     

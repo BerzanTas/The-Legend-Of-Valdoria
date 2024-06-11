@@ -24,7 +24,7 @@ class Slime(pygame.sprite.Sprite):
         self.dying = False
 
         self.speed = 2 # movement speed slime'a
-        self.attack_radius = 150
+        self.attack_radius = 260
         self.attack_damage = 10
         self.attack_cooldown = 1000  # milliseconds
         self.last_attack_time = 0
@@ -99,8 +99,8 @@ class Slime(pygame.sprite.Sprite):
         direction = player_pos - slime_pos
         if direction.length() != 0:
             direction = direction.normalize()
-            self.rect.center += direction * self.speed
-            self.hitbox.center = self.rect.center  # aktualizacja hitboxu
+            self.hitbox.center += direction * self.speed
+            self.rect.center = self.hitbox.center  # aktualizacja hitboxu
             self.current_animation = self.animations["move"]
 
     def take_damage(self, amount):

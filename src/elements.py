@@ -9,7 +9,8 @@ class Portal(pygame.sprite.Sprite):
         self.current_frame = 0
         self.image = self.frames[self.current_frame]
         self.rect = self.image.get_rect(topleft=pos)
-        self.hitbox = self.rect.inflate(0,0)
+        self.hitbox = self.rect.inflate(-120,-70)
+        self.hitbox.move_ip(0,10)
         self.animation_speed = 100  # ms between frames
         self.last_update = pygame.time.get_ticks()
 
@@ -17,6 +18,7 @@ class Portal(pygame.sprite.Sprite):
         frames = []
         for i in range(8):
             frame = self.get_sprite(self.sprite_sheet, i, 0, 64, 64)
+            frame = pygame.transform.scale(frame, (128,128))
             frames.append(frame)
         return frames
 
