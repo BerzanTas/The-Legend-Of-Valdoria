@@ -12,6 +12,8 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft=pos)
         self.hitbox = self.rect.inflate(-30,-20)
 
+        self.dead = False
+
         self.obstacle_sprites = obstacle_sprites
         self.fireball_sprites = fireball_sprites
         self.visible_sprites = visible_sprites
@@ -35,6 +37,16 @@ class Player(pygame.sprite.Sprite):
         self.footsteps_sound = pygame.mixer.Sound("sounds/effects/footsteps.mp3")
         self.footsteps_sound.set_volume(0.1)
 
+        # efekt obrażeń
+        self.damage_channel = pygame.mixer.Channel(6)
+        self.damage_sound = pygame.mixer.Sound("sounds/effects/damage.ogg")
+        self.damage_sound.set_volume(0.1)
+
+        # efekt śmierci
+        self.death_channel = pygame.mixer.Channel(7)
+        self.death_sound = pygame.mixer.Sound("sounds/effects/death.wav")
+        self.death_sound.set_volume(0.1)
+
 
 
         # Animacje
@@ -43,6 +55,7 @@ class Player(pygame.sprite.Sprite):
             "left": self.create_animation(self.sprite_sheet, 9, 9, SPRITE_WIDTH, SPRITE_HEIGHT),
             "down": self.create_animation(self.sprite_sheet, 10, 9, SPRITE_WIDTH, SPRITE_HEIGHT),
             "right": self.create_animation(self.sprite_sheet, 11, 9, SPRITE_WIDTH, SPRITE_HEIGHT),
+            "death": self.create_animation(self.sprite_sheet, 20, 6, SPRITE_WIDTH, SPRITE_HEIGHT),
             "attack_up": self.create_attack_animation(47, 8),
             "attack_left": self.create_attack_animation(50, 8),
             "attack_down": self.create_attack_animation(53, 8),
@@ -108,89 +121,107 @@ class Player(pygame.sprite.Sprite):
         return str(seconds)
     
     def take_damage(self, amount):
-        self.health -= amount
-        print(f"Player health: {self.health}")  # Debug print
-        if self.health <= 0:
-            self.health = 0
-            print("Player is dead!") 
+        if not self.dead:
+            if self.health <= 0:
+                self.sound_player("death")
+                self.health = 0
+                self.dead = True
+                self.current_frame = 0
+            else:
+                self.sound_player("damage")
+                self.health -= amount
+
+        print(f"Player health: {self.health}")
+        print(self.dead)
     
-    def footsteps(self):
-        if not self.footstep_channel.get_busy():
+    def sound_player(self, sound_type):
+        if sound_type == "footsteps" and not self.footstep_channel.get_busy():
             self.footstep_channel.play(self.footsteps_sound)
+        elif sound_type == "damage" and not self.damage_channel.get_busy():
+            self.damage_channel.play(self.damage_sound)
+        elif sound_type == "death" and not self.death_channel.get_busy():
+            self.death_channel.play(self.death_sound)
+
 
     def update(self):
-        self.current_time = pygame.time.get_ticks()
-        self.fireball_cooldown = False if self.current_time - self.previous_time_fireball >= spell_data['fireball']['cooldown'] else True
-        self.laserbeam_cooldown = False if self.current_time - self.previous_time_laserbeam >= spell_data["laserbeam"]["cooldown"]  else True
-        
-        keys = pygame.key.get_pressed()
-        if not self.is_attacking:
-            self.current_animation = None
-            self.direction.x = 0
-            self.direction.y = 0
 
-            if keys[pygame.K_UP]:
-                self.current_animation = self.animations["up"]
-                self.direction.y = -1
-                self.idle_frame = self.idle_frames["up"]
-            elif keys[pygame.K_LEFT]:
-                self.current_animation = self.animations["left"]
-                self.direction.x = -1
-                self.idle_frame = self.idle_frames["left"]
-            elif keys[pygame.K_DOWN]:
-                self.current_animation = self.animations["down"]
-                self.direction.y = 1
-                self.idle_frame = self.idle_frames["down"]
-            elif keys[pygame.K_RIGHT]:
-                self.current_animation = self.animations["right"]
-                self.direction.x = 1
-                self.idle_frame = self.idle_frames["right"]
-
-            elif keys[pygame.K_SPACE]:
-                if not self.fireball_cooldown:
-                    self.is_attacking = True
-                    if self.idle_frame == self.idle_frames["up"]:
-                        self.current_animation = self.animations["attack_up"]
-                        self.projectile = Fireball(self.rect.center, (self.visible_sprites, self.fireball_sprites), facing = "up", hit_sprites=self.obstacle_sprites)
-                    elif self.idle_frame == self.idle_frames["left"]:
-                        self.current_animation = self.animations["attack_left"]
-                        self.projectile = Fireball(self.rect.center, (self.visible_sprites, self.fireball_sprites), facing = "left", hit_sprites=self.obstacle_sprites)
-                    elif self.idle_frame == self.idle_frames["down"]:
-                        self.current_animation = self.animations["attack_down"]
-                        self.projectile = Fireball(self.rect.center, (self.visible_sprites, self.fireball_sprites), facing = "down", hit_sprites=self.obstacle_sprites)
-                    elif self.idle_frame == self.idle_frames["right"]:
-                        self.current_animation = self.animations["attack_right"]
-                        self.projectile = Fireball(self.rect.center, (self.visible_sprites, self.fireball_sprites), facing = "right", hit_sprites=self.obstacle_sprites)
-
-                    self.previous_time_fireball = self.current_time
-                
-
-            elif keys[pygame.K_q]:
-                if not self.laserbeam_cooldown:
-                    self.is_attacking = True
-                    if self.idle_frame == self.idle_frames["up"]:
-                        self.current_animation = self.animations["attack_up"]
-                        self.projectile = Laserbeam(self.rect.center, (self.visible_sprites, self.fireball_sprites), facing = "up", hit_sprites=self.obstacle_sprites)
-                    elif self.idle_frame == self.idle_frames["left"]:
-                        self.current_animation = self.animations["attack_left"]
-                        self.projectile = Laserbeam(self.rect.center, (self.visible_sprites, self.fireball_sprites), facing = "left", hit_sprites=self.obstacle_sprites)
-                    elif self.idle_frame == self.idle_frames["down"]:
-                        self.current_animation = self.animations["attack_down"]
-                        self.projectile = Laserbeam(self.rect.center, (self.visible_sprites, self.fireball_sprites), facing = "down", hit_sprites=self.obstacle_sprites)
-                    elif self.idle_frame == self.idle_frames["right"]:
-                        self.current_animation = self.animations["attack_right"]
-                        self.projectile = Laserbeam(self.rect.center, (self.visible_sprites, self.fireball_sprites), facing = "right", hit_sprites=self.obstacle_sprites)
-
-                    self.previous_time_laserbeam = self.current_time
-        
-        else:
+        if self.dead:
+            self.current_animation = self.animations["death"]
             if self.current_frame >= len(self.current_animation) - 1:
-                self.is_attacking = False
-                self.current_frame = 0
+                self.kill()
+        else:
+            self.current_time = pygame.time.get_ticks()
+            self.fireball_cooldown = False if self.current_time - self.previous_time_fireball >= spell_data['fireball']['cooldown'] else True
+            self.laserbeam_cooldown = False if self.current_time - self.previous_time_laserbeam >= spell_data["laserbeam"]["cooldown"]  else True
+        
+            keys = pygame.key.get_pressed()
+            if not self.is_attacking:
+                self.current_animation = None
+                self.direction.x = 0
+                self.direction.y = 0
+
+                if keys[pygame.K_UP]:
+                    self.current_animation = self.animations["up"]
+                    self.direction.y = -1
+                    self.idle_frame = self.idle_frames["up"]
+                elif keys[pygame.K_LEFT]:
+                    self.current_animation = self.animations["left"]
+                    self.direction.x = -1
+                    self.idle_frame = self.idle_frames["left"]
+                elif keys[pygame.K_DOWN]:
+                    self.current_animation = self.animations["down"]
+                    self.direction.y = 1
+                    self.idle_frame = self.idle_frames["down"]
+                elif keys[pygame.K_RIGHT]:
+                    self.current_animation = self.animations["right"]
+                    self.direction.x = 1
+                    self.idle_frame = self.idle_frames["right"]
+
+                elif keys[pygame.K_SPACE]:
+                    if not self.fireball_cooldown:
+                        self.is_attacking = True
+                        if self.idle_frame == self.idle_frames["up"]:
+                            self.current_animation = self.animations["attack_up"]
+                            self.projectile = Fireball(self.rect.center, (self.visible_sprites, self.fireball_sprites), facing = "up", hit_sprites=self.obstacle_sprites)
+                        elif self.idle_frame == self.idle_frames["left"]:
+                            self.current_animation = self.animations["attack_left"]
+                            self.projectile = Fireball(self.rect.center, (self.visible_sprites, self.fireball_sprites), facing = "left", hit_sprites=self.obstacle_sprites)
+                        elif self.idle_frame == self.idle_frames["down"]:
+                            self.current_animation = self.animations["attack_down"]
+                            self.projectile = Fireball(self.rect.center, (self.visible_sprites, self.fireball_sprites), facing = "down", hit_sprites=self.obstacle_sprites)
+                        elif self.idle_frame == self.idle_frames["right"]:
+                            self.current_animation = self.animations["attack_right"]
+                            self.projectile = Fireball(self.rect.center, (self.visible_sprites, self.fireball_sprites), facing = "right", hit_sprites=self.obstacle_sprites)
+
+                        self.previous_time_fireball = self.current_time
+                    
+
+                elif keys[pygame.K_q]:
+                    if not self.laserbeam_cooldown:
+                        self.is_attacking = True
+                        if self.idle_frame == self.idle_frames["up"]:
+                            self.current_animation = self.animations["attack_up"]
+                            self.projectile = Laserbeam(self.rect.center, (self.visible_sprites, self.fireball_sprites), facing = "up", hit_sprites=self.obstacle_sprites)
+                        elif self.idle_frame == self.idle_frames["left"]:
+                            self.current_animation = self.animations["attack_left"]
+                            self.projectile = Laserbeam(self.rect.center, (self.visible_sprites, self.fireball_sprites), facing = "left", hit_sprites=self.obstacle_sprites)
+                        elif self.idle_frame == self.idle_frames["down"]:
+                            self.current_animation = self.animations["attack_down"]
+                            self.projectile = Laserbeam(self.rect.center, (self.visible_sprites, self.fireball_sprites), facing = "down", hit_sprites=self.obstacle_sprites)
+                        elif self.idle_frame == self.idle_frames["right"]:
+                            self.current_animation = self.animations["attack_right"]
+                            self.projectile = Laserbeam(self.rect.center, (self.visible_sprites, self.fireball_sprites), facing = "right", hit_sprites=self.obstacle_sprites)
+
+                        self.previous_time_laserbeam = self.current_time
+            
+            else:
+                if self.current_frame >= len(self.current_animation) - 1:
+                    self.is_attacking = False
+                    self.current_frame = 0
 
         # efekt głosowy chodzenia
         if self.direction.x != 0 or self.direction.y != 0:
-            self.footsteps()
+            self.sound_player("footsteps")
         else:
             self.footstep_channel.stop()
 
