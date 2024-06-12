@@ -20,6 +20,7 @@ class Tile(pygame.sprite.Sprite):
             self.rect = self.image.get_rect(topleft=pos)
             self.hitbox = self.rect.inflate(-5,-20)
         elif tile_type == 'decor':
+            self.is_decor = True
             self.image = pygame.image.load("img/decor.png").convert_alpha()
             self.image = pygame.transform.scale(self.image, (64,64))
             self.rect = self.image.get_rect(topleft=pos)

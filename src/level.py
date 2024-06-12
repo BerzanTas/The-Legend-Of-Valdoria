@@ -95,13 +95,17 @@ class YSortCameraGroup(pygame.sprite.Group):
         self.offset.x = max(0, min(self.offset.x, MAP_WIDTH - self.display_surface.get_width()))
         self.offset.y = max(0, min(self.offset.y, MAP_HEIGHT - self.display_surface.get_height()))
 
-        # Rysowanie tła
-        for row in range(0, MAP_HEIGHT, TILESIZE):
-            for col in range(0, MAP_WIDTH, TILESIZE):
-                self.display_surface.blit(self.grass_image, (col - self.offset.x, row - self.offset.y))
+        # Separate decor and non-decor sprites
+        decor_sprites = [sprite for sprite in self.sprites() if getattr(sprite, 'is_decor', False)]
+        non_decor_sprites = [sprite for sprite in self.sprites() if not getattr(sprite, 'is_decor', False)]
 
-        # Rysowanie sprite'ów
-        for sprite in sorted(self.sprites(), key=lambda sprite: sprite.rect.centery):
+        # Draw decor elements first
+        for sprite in sorted(decor_sprites, key=lambda sprite: sprite.rect.centery):
+            offset_pos = sprite.rect.topleft - self.offset
+            self.display_surface.blit(sprite.image, offset_pos)
+
+        # Draw other sprites
+        for sprite in sorted(non_decor_sprites, key=lambda sprite: sprite.rect.centery):
             offset_pos = sprite.rect.topleft - self.offset
             self.display_surface.blit(sprite.image, offset_pos)
 
