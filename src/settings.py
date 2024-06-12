@@ -51,7 +51,7 @@ spell_data = {
 slime_width = 32
 slime_height = 32
 slime_speed = 400
-slime_aniamtion = 0.1
+slime_animation = 0.1
 
 ##SKELETON 
 skeleton_width = 48

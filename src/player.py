@@ -1,8 +1,7 @@
 import pygame
 from settings import *
 from projectile import Fireball, Laserbeam
-from slime import Slime
-from skeleton import Skeleton
+from enemy import Skeleton, Slime
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos, groups, obstacle_sprites, fireball_sprites, visible_sprites):

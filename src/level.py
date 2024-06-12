@@ -2,10 +2,9 @@ import pygame
 from settings import *
 from tile import Tile
 from player import Player
-from slime import Slime
 from projectile import Fireball
 from ui import UI
-from skeleton import Skeleton
+from enemy import Skeleton, Slime
 from elements import *
 
 class Level:
@@ -43,9 +42,9 @@ class Level:
                 if col == 'x':
                     Tile((x, y), (self.visible_sprites, self.obstacle_sprites), 'rock')
                 elif col == 's':
-                    self.slime = Slime((x, y), (self.visible_sprites, self.obstacle_sprites), self.obstacle_sprites, self.visible_sprites, self.player)
+                    self.slime = Slime((x, y), (self.visible_sprites, self.obstacle_sprites), self.obstacle_sprites, self.visible_sprites, self.player, 1, 5)
                 elif col == 'sk':
-                    self.slime = Skeleton((x, y), (self.visible_sprites, self.obstacle_sprites), self.obstacle_sprites, self.visible_sprites, self.player)
+                    self.slime = Skeleton((x, y), (self.visible_sprites, self.obstacle_sprites), self.obstacle_sprites, self.visible_sprites, self.player, 2, 10)
                 elif col == "tr1": #drzewo 1
                     Tile((x, y), (self.visible_sprites, self.obstacle_sprites), 'tree1', layer=2)
                 elif col == "portal":  # portal
