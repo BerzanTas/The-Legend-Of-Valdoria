@@ -42,9 +42,9 @@ class Level:
                 if col == 'x':
                     Tile((x, y), (self.visible_sprites, self.obstacle_sprites), 'rock')
                 elif col == 's':
-                    self.slime = Slime((x, y), (self.visible_sprites, self.obstacle_sprites), self.obstacle_sprites, self.visible_sprites, self.player, 1, 5)
+                    self.slime = Slime((x, y), (self.visible_sprites, self.obstacle_sprites), self.obstacle_sprites, self.visible_sprites, self.player, 1, exp=50)
                 elif col == 'sk':
-                    self.slime = Skeleton((x, y), (self.visible_sprites, self.obstacle_sprites), self.obstacle_sprites, self.visible_sprites, self.player, 2, 10)
+                    self.slime = Skeleton((x, y), (self.visible_sprites, self.obstacle_sprites), self.obstacle_sprites, self.visible_sprites, self.player, 2, exp=150)
                 elif col == "tr1": #drzewo 1
                     Tile((x, y), (self.visible_sprites, self.obstacle_sprites), 'tree1', layer=2)
                 elif col == "portal":  # portal

@@ -82,11 +82,11 @@ class Enemy(pygame.sprite.Sprite):
         self.is_attacking = True
         self.current_frame = 0
 
-    def check_attack(self, exp):
+    def check_attack(self):
         if self.hitbox.colliderect(self.player.hitbox):
             now = pygame.time.get_ticks()
             if now - self.last_attack_time > self.attack_cooldown:
-                self.player.take_damage(self.attack_damage, exp)
+                self.player.take_damage(self.attack_damage)
                 self.last_attack_time = now
 
 
@@ -151,7 +151,7 @@ class Skeleton(Enemy):
             if distance_to_player < self.attack_radius:
                 if not self.is_attacking:
                     self.start_attack()
-                self.check_attack(10)
+                self.check_attack()
             elif distance_to_player < self.follow_radius:
                 self.move_towards_player()
             else:
@@ -254,7 +254,7 @@ class Slime(Enemy):
         self.rect.center = self.hitbox.center
 
         if self.alive and not self.dying:
-            self.check_attack(5)
+            self.check_attack()
 
         if not self.alive:
             self.current_animation = self.animations["death"]

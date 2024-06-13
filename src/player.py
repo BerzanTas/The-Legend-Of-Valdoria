@@ -76,7 +76,7 @@ class Player(pygame.sprite.Sprite):
         self.idle_frame = self.idle_frames["right"]
 
         # staty
-        self.stats = {'health':100, 'mana':70, 'magic':1, 'speed':3}
+        self.stats = {'health':100, 'mana':70, 'magic':1, 'speed':3, 'health_regen':2, 'mana_regen':2}
         self.health = self.stats['health'] * 0.5
         self.mana = self.stats['mana'] * 0.8
         self.exp = 0
@@ -121,14 +121,14 @@ class Player(pygame.sprite.Sprite):
     
     def take_damage(self, amount):
         if not self.dead:
+            self.sound_player("damage")
+            self.health -= amount
             if self.health <= 0:
                 self.sound_player("death")
                 self.health = 0
                 self.dead = True
                 self.current_frame = 0
-            else:
-                self.sound_player("damage")
-                self.health -= amount
+                
 
         print(f"Player health: {self.health}")
         print(self.dead)
@@ -139,7 +139,16 @@ class Player(pygame.sprite.Sprite):
         elif sound_type == "damage" and not self.damage_channel.get_busy():
             self.damage_channel.play(self.damage_sound)
         elif sound_type == "death" and not self.death_channel.get_busy():
+            self.damage_channel.stop()
             self.death_channel.play(self.death_sound)
+
+    # sprawdza czy mamy wystarczającą ilość many, jeżeli tak, to zmniejsza o ilość wykorzystywaną
+    def mana_handler(self, spell:str)->bool:
+        if self.mana >= spell_data[spell]["mana"]:
+            self.mana -= spell_data[spell]["mana"]
+            return True
+        else:
+            return False
 
 
     def update(self):
@@ -177,7 +186,7 @@ class Player(pygame.sprite.Sprite):
                     self.idle_frame = self.idle_frames["right"]
 
                 elif keys[pygame.K_SPACE]:
-                    if not self.fireball_cooldown:
+                    if not self.fireball_cooldown and self.mana_handler("fireball"):
                         self.is_attacking = True
                         if self.idle_frame == self.idle_frames["up"]:
                             self.current_animation = self.animations["attack_up"]
@@ -195,7 +204,7 @@ class Player(pygame.sprite.Sprite):
                         self.previous_time_fireball = self.current_time
                     
 
-                elif keys[pygame.K_q]:
+                elif keys[pygame.K_q] and self.mana_handler("laserbeam"):
                     if not self.laserbeam_cooldown:
                         self.is_attacking = True
                         if self.idle_frame == self.idle_frames["up"]:

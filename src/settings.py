@@ -25,14 +25,16 @@ BAR_HEIGHT = 20
 HEALTH_BAR_WIDTH = 200
 MANA_BAR_WIDTH = 140
 SPELL_BOX_SIZE = 70
-UI_FONT = 'img/Ubuntu.ttf'
+UI_FONT = 'img/font/Lora.ttf'
 UI_FONT_SIZE = 22
+SPELL_FONT = 'img/font/Lora-Bold.ttf'
 
 # kolory
 WATER_COLOR = '#71ddee'
 UI_BG_COLOR = '#222222'
 UI_BORDER_COLOR = '#111111'
 TEXT_COLOR = '#EEEEEE'
+COOLDOWN_COLOR = 'red'
 
 HEALTH_COLOR = 'red'
 MANA_COLOR = 'blue'
@@ -41,10 +43,9 @@ UI_BORDER_COLOR_ACTIVE = 'gold'
 # informacje o zaklęciach
 
 spell_data = {
-    'fireball': {'cooldown': 1000, 'damage': 10, 'img': 'img/spells/fireballicon.png'},
-    'laserbeam': {'cooldown': 11000, 'damage': 80, 'img': 'img/spells/laserbeamicon.png'},
-    #'energyball': {'cooldown': 40, 'damage': 60, 'img': 'img/spells/energyball/energyBallicon.png'}
-
+    'fireball': {'cooldown': 1000, 'damage': 10, 'mana': 5, 'img': 'img/spells/fireballicon.png'},
+    'laserbeam': {'cooldown': 11000, 'damage': 80, 'mana': 20,'img': 'img/spells/laserbeamicon.png'},
+    'heal': {'cooldown': 40000, 'heal': 40, 'mana': 30,'img': 'img/spells/healicon.png'}
 }
 
 ##SLIME
