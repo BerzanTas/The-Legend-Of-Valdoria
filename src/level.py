@@ -4,7 +4,7 @@ from tile import Tile
 from player import Player
 from projectile import Fireball
 from ui import UI
-from enemy import Skeleton, Slime
+from enemy import Skeleton, Slime, Nightborne
 from elements import *
 
 class Level:
@@ -61,6 +61,10 @@ class Level:
                     Tile((x,y), (self.visible_sprites, self.obstacle_sprites), 'tablica', layer=2)
                 elif col == "hd":
                     Tile((x,y), (self.visible_sprites, self.obstacle_sprites), 'head', layer=2)
+                elif col == "borne":
+                    self.night = Nightborne((x, y), (self.visible_sprites, self.obstacle_sprites), self.obstacle_sprites, self.visible_sprites, self.player, 2, 10)
+                elif col == "bld":  #woda
+                    bloodtower((x, y), (self.visible_sprites, self.obstacle_sprites))
     def draw_background(self):
         for row in range(0, MAP_HEIGHT, TILESIZE):
             for col in range(0, MAP_WIDTH, TILESIZE):
