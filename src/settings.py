@@ -73,10 +73,10 @@ WORLD_MAP = [
     ['g', 'x', 'tr1', 'g', 'g', 'g', 'g', 'g', 'dc', 'g', 'g', 'dc', 'g', 'g', 'tr1', 'g', 'g', 'g', 'g', 'dc', 'g', 'g', 'g', 'g', 'dc', 'g', 'g', 'g', 'tr1', 'g'],
     ['s', 'g', 'kr', 'g', 'g', 'g', 'g', 's', 'g', 'g', 'g', 'g', 'g', 'g', 'g', 'g', 'g', 'dc', 'g', 'g', 'tr1', 'g', 'g', 'g', 'g', 'hd', 'dc', 'g', 'g', 'g'],
     ['g', 'g', 'g', 'g', 'g', 'g', 'g', 'g', 'g', 'g', 'tr1', 'g', 'g', 'dc', 'g', 'g', 'g', 'g', 'g', 'g', 'hd', 'g', 'g', 'tr1', 'g', 'g', 'sk', 'g', 'dc', 'g'],
-    ['g', 'g', 'g', 'tr1', 'g', 's', 'g', 'g', 'g', 'g', 'g', 's', 'g', 'g', 'g', 'dc', 'g', 'tr2', 'g', 'g', 'g', 'g', 'g', 'hd', 'dc', 'g', 'g', 'portal', 'g', 'dc'],
+    ['g', 'g', 'g', 'tr1', 'g', 's', 'g', 'g', 'g', 'g', 'g', 's', 'g', 'g', 'g', 'dc', 'g', 'tr2', 'g', 'g', 'g', 'g', 'g', 'hd', 'dc', 'g', 'g', 'bld', 'g', 'dc'],
     ['tr1', 'g', 'g', 'g', 'g', 'g', 'g', 'g', 'g', 'g', 'g', 'g', 'g', 'g', 'dc', 'g', 'g', 'g', 'g', 'g', 'g', 'tr1', 'g', 'g', 'g', 'g', 'g', 'g', 'g', 'g'],
-    ['g', 'tr1', 'g', 'g', 'dc', 'g', 'g', 'g', 'tr1', 'g', 'g', 'g', 's', 'g', 'g', 'tr1', 'g', 'g', 'g', 'g', 'dc', 'g', 'g', 'g', 'tr1', 'g', 'g', 'g', 'g', 'g'],
-    ['g', 'tr2', 'g', 'g', 'g', 'g', 'g', 'g', 'g', 'g', 'g', 'dc', 'g', 'g', 'g', 'g', 'g', 'tr1', 'g', 'g', 'g', 'g', 'dc', 'g', 'sk', 'g', 'g', 'g', 'g', 'dc'],
+    ['g', 'tr1', 'g', 'g', 'dc', 'g', 'g', 'g', 'tr1', 'g', 'g', 'g', 's', 'g', 'g', 'tr1', 'g', 'g', 'g', 'g', 'dc', 'g', 'g', 'g', 'tr1', 'g', 'borne', 'g', 'g', 'g'],
+    ['g', 'tr2', 'g', 'g', 'g', 'g', 'g', 'g', 'g', 'g', 'g', 'dc', 'g', 'g', 'g', 'g', 'g', 'tr1', 'g', 'g', 'g', 'g', 'dc', 'g', 'sk', 'g', 'g', 'dc', 'g', 'dc'],
     ['g', 'g', 'g', 'tr1', 'g', 'g', 'g', 'tr1', 'g', 'g', 'g', 'g', 'g', 'dc', 'g', 'g', 'g', 'x', 'g', 'g', 'g', 'g', 'g', 'g', 'g', 'tr1', 'g', 'g', 'g', 'g'],
     ['g', 'dc', 'g', 'g', 'g', 'g', 'g', 'g', 'g', 'g', 'g', 'dc', 'g', 'g', 'g', 'g', 'tr1', 'g', 'g', 'g', 'g', 'g', 'g', 'g', 'dc', 'tr2', 'g', 'g', 'g', 'tr1'],
     ['g', 'g', 'g', 'g', 'dc', 'g', 's', 'g', 'tr1', 'g', 'g', 'g', 'g', 'g', 'g', 'g', 'g', 'g', 'g', 'g', 'tr1', 'g', 'g', 'g', 'g', 'g', 'g', 'g', 'dc', 'g'],
@@ -87,3 +87,8 @@ WORLD_MAP = [
 
 MAP_WIDTH = len(WORLD_MAP[0]) * TILESIZE
 MAP_HEIGHT = len(WORLD_MAP) * TILESIZE
+
+
+nightborne_width = 80
+nightborne_height = 80
+nightborne_speed = 0.2

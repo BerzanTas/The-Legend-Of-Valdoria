@@ -262,3 +262,99 @@ class Slime(Enemy):
             self.move_towards_player()
         else:
             self.current_animation = self.animations["stand"]
+
+class Nightborne(Enemy):
+    def __init__(self, pos, groups, obstacle_sprites, visible_sprites, player, level, exp):
+        super().__init__(pos, groups, obstacle_sprites, visible_sprites, player, level, exp)
+
+        self.sprite_sheet = pygame.image.load("img/night.png").convert_alpha()
+        self.image = self.get_sprite(self.sprite_sheet, 0, 0, nightborne_width, nightborne_height, scale=(80, 80))
+        
+        self.rect = self.image.get_rect()
+        self.rect.topleft = pos
+        self.hitbox = self.rect.inflate(-10, -10)
+
+        self.health = 120
+        self.speed = 2  # Hardcoded speed for testing
+        self.follow_radius = 300  # Radius where Nightborne starts following the player
+        self.attack_radius = 50  # Attack radius
+        self.attack_damage = 15
+        self.attack_cooldown = 2500  # Attack cooldown in milliseconds
+        self.last_attack_time = 0
+
+        self.animations = {
+            "stand": self.create_animation(self.sprite_sheet, 0, 9, nightborne_width, nightborne_height, scale=(80, 80)),
+            "move_right": self.create_animation(self.sprite_sheet, 1, 6, nightborne_width, nightborne_height, scale=(80, 80)),
+            "move_left": self.create_animation(self.sprite_sheet, 1, 6, nightborne_width, nightborne_height, scale=(80, 80), flip=True),
+            "move_top": self.create_animation(self.sprite_sheet, 1, 6, nightborne_width, nightborne_height, scale=(80, 80), flip=True),
+            "move_bottom": self.create_animation(self.sprite_sheet, 1, 6, nightborne_width, nightborne_height, scale=(80, 80), flip=True),
+            "attack": self.create_animation(self.sprite_sheet, 2, 12, nightborne_width, nightborne_height, scale=(80, 80)),
+            "death": self.create_animation(self.sprite_sheet, 4, 22, nightborne_width, nightborne_height, scale=(80, 80))
+        }
+
+        self.current_animation = self.animations["stand"]
+        self.current_frame = 0
+        self.last_update_time = pygame.time.get_ticks()
+        self.is_attacking = False
+
+        self.animation_speed = 0.15  # Time in seconds between animation frames
+        self.death_animation_speed = 0.5  # Slower speed for death animation
+
+    def update(self):
+        now = pygame.time.get_ticks()
+        elapsed_time = (now - self.last_update_time) / 1000.0
+
+        if elapsed_time > self.animation_speed:
+            self.last_update_time = now
+            if self.alive:
+                self.update_animation()
+            elif self.dying:
+                self.update_death_animation()
+
+        self.rect.centerx = self.hitbox.centerx
+        self.rect.centery = self.hitbox.centery - 15
+
+        if self.alive and not self.dying:
+            distance_to_player = self.get_distance_to_player()
+            
+            if distance_to_player < self.attack_radius:
+                if not self.is_attacking:
+                    self.start_attack()
+                self.check_attack(10)
+            elif distance_to_player < self.follow_radius:
+                self.move_towards_player()
+            else:
+                self.current_animation = self.animations["stand"]
+                self.is_attacking = False
+
+            # Check map boundaries
+            if self.rect.left < 0:
+                self.rect.left = 0
+            if self.rect.right > MAP_WIDTH:
+                self.rect.right = MAP_WIDTH
+            if self.rect.top < 0:
+                self.rect.top = 0
+            if self.rect.bottom > MAP_HEIGHT:
+                self.rect.bottom = MAP_HEIGHT
+
+        if not self.alive and self.current_animation == self.animations["death"]:
+            elapsed_time = (now - self.last_update_time) / 1000.0
+            if elapsed_time > self.death_animation_speed:
+                self.update_death_animation()
+
+    def set_move_animation(self, direction):
+        if abs(direction.y) > abs(direction.x):
+            if direction.y < 0:
+                self.current_animation = self.animations["move_top"]
+            else:
+                self.current_animation = self.animations["move_bottom"]
+        else:
+            if direction.x < 0:
+                self.current_animation = self.animations["move_left"]
+            else:
+                self.current_animation = self.animations["move_right"]
+
+    def set_attack_animation(self):
+        self.current_animation = self.animations["attack"]
+        self.current_frame = 0
+        self.is_attacking = True
