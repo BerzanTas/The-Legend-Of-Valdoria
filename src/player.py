@@ -13,6 +13,9 @@ class Player(pygame.sprite.Sprite):
 
         self.dead = False
 
+        self.regen_time = 3000 #milisekund
+        self.previous_time_regen = 0
+
         self.obstacle_sprites = obstacle_sprites
         self.fireball_sprites = fireball_sprites
         self.visible_sprites = visible_sprites
@@ -76,7 +79,7 @@ class Player(pygame.sprite.Sprite):
         self.idle_frame = self.idle_frames["right"]
 
         # staty
-        self.stats = {'health':100, 'mana':70, 'magic':1, 'speed':3, 'health_regen':2, 'mana_regen':2}
+        self.stats = {'health':100, 'mana':70, 'magic':1, 'speed':3, 'health_regen':6, 'mana_regen':5}
         self.health = self.stats['health'] * 0.5
         self.mana = self.stats['mana'] * 0.8
         self.exp = 0
@@ -149,6 +152,17 @@ class Player(pygame.sprite.Sprite):
             return True
         else:
             return False
+    
+    # regeneruj życie i mana co x sekund
+    def regeneration(self):
+        if self.health < self.stats["health"]:
+            self.health += self.stats["health_regen"]
+            if self.health > self.stats["health"]:
+                self.health = self.stats["health"]
+        if  self.mana < self.stats["mana"]:
+            self.mana += self.stats["mana_regen"]
+            if self.mana > self.stats["mana"]:
+                self.mana = self.stats["mana"]
 
 
     def update(self):
@@ -204,28 +218,34 @@ class Player(pygame.sprite.Sprite):
                         self.previous_time_fireball = self.current_time
                     
 
-                elif keys[pygame.K_q] and self.mana_handler("laserbeam"):
+                elif keys[pygame.K_q]:
                     if not self.laserbeam_cooldown:
-                        self.is_attacking = True
-                        if self.idle_frame == self.idle_frames["up"]:
-                            self.current_animation = self.animations["attack_up"]
-                            self.projectile = Laserbeam(self.rect.center, (self.visible_sprites, self.fireball_sprites), facing = "up", hit_sprites=self.obstacle_sprites)
-                        elif self.idle_frame == self.idle_frames["left"]:
-                            self.current_animation = self.animations["attack_left"]
-                            self.projectile = Laserbeam(self.rect.center, (self.visible_sprites, self.fireball_sprites), facing = "left", hit_sprites=self.obstacle_sprites)
-                        elif self.idle_frame == self.idle_frames["down"]:
-                            self.current_animation = self.animations["attack_down"]
-                            self.projectile = Laserbeam(self.rect.center, (self.visible_sprites, self.fireball_sprites), facing = "down", hit_sprites=self.obstacle_sprites)
-                        elif self.idle_frame == self.idle_frames["right"]:
-                            self.current_animation = self.animations["attack_right"]
-                            self.projectile = Laserbeam(self.rect.center, (self.visible_sprites, self.fireball_sprites), facing = "right", hit_sprites=self.obstacle_sprites)
+                        if self.mana_handler("laserbeam"):
+                            self.is_attacking = True
+                            if self.idle_frame == self.idle_frames["up"]:
+                                self.current_animation = self.animations["attack_up"]
+                                self.projectile = Laserbeam(self.rect.center, (self.visible_sprites, self.fireball_sprites), facing = "up", hit_sprites=self.obstacle_sprites)
+                            elif self.idle_frame == self.idle_frames["left"]:
+                                self.current_animation = self.animations["attack_left"]
+                                self.projectile = Laserbeam(self.rect.center, (self.visible_sprites, self.fireball_sprites), facing = "left", hit_sprites=self.obstacle_sprites)
+                            elif self.idle_frame == self.idle_frames["down"]:
+                                self.current_animation = self.animations["attack_down"]
+                                self.projectile = Laserbeam(self.rect.center, (self.visible_sprites, self.fireball_sprites), facing = "down", hit_sprites=self.obstacle_sprites)
+                            elif self.idle_frame == self.idle_frames["right"]:
+                                self.current_animation = self.animations["attack_right"]
+                                self.projectile = Laserbeam(self.rect.center, (self.visible_sprites, self.fireball_sprites), facing = "right", hit_sprites=self.obstacle_sprites)
 
-                        self.previous_time_laserbeam = self.current_time
-            
+                            self.previous_time_laserbeam = self.current_time
+                
             else:
                 if self.current_frame >= len(self.current_animation) - 1:
                     self.is_attacking = False
                     self.current_frame = 0
+
+                
+            if self.current_time - self.previous_time_regen >= self.regen_time:
+                self.previous_time_regen = self.current_time
+                self.regeneration()
 
         # efekt głosowy chodzenia
         if self.direction.x != 0 or self.direction.y != 0:

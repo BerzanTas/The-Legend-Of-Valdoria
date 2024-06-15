@@ -7,6 +7,7 @@ class UI:
         
         self.display_surface = pygame.display.get_surface()
         self.exp_font = pygame.font.Font(UI_FONT, UI_FONT_SIZE)
+        self.bar_font = pygame.font.Font(UI_FONT, 14)
         self.spell_font = pygame.font.Font(SPELL_FONT, 20)
         self.cooldown_font = pygame.font.FontType(UI_FONT, 28)
 
@@ -31,8 +32,15 @@ class UI:
         current_rect = bg_rect.copy()
         current_rect.width = current_width
 
+        text_surf = self.bar_font.render(str(str(int(current))+"/"+str(int(max_amount))), False, TEXT_COLOR)
+        text_rect = text_surf.get_rect()
+        text_rect.topright = bg_rect.topright
+        
         pygame.draw.rect(self.display_surface, color, current_rect)
         pygame.draw.rect(self.display_surface, UI_BORDER_COLOR, bg_rect, 3)
+
+        self.display_surface.blit(text_surf, text_rect)
+
 
     def show_exp(self, exp):
         text_surf = self.exp_font.render(str(int(exp)), False, TEXT_COLOR)
@@ -73,6 +81,12 @@ class UI:
         spell_img.blit(button_key, (5, 0))
         spell_img.blit(mana_cost, mana_cost_rect)
 
+    
+    def stat_box(self, left, top, stat_name):
+        bg_rect = pygame.Rect(left, top, STAT_BOX_SIZE, STAT_BOX_SIZE)
+        pygame.draw.rect(self.display_surface, UI_BG_COLOR, bg_rect)
+        pygame.draw.rect(self.display_surface, UI_BORDER_COLOR, bg_rect, 3)
+
         
 
 
@@ -82,6 +96,8 @@ class UI:
 
         self.show_exp(player.exp)
 
-        self.spell_box(10, 630, self.spell_img[0], player.fireball_cooldown, "Space", spell_data["fireball"]["mana"])
-        self.spell_box(SPELL_BOX_SIZE + 20, 630, self.spell_img[1], player.laserbeam_cooldown, "Q", spell_data["laserbeam"]["mana"],  player.get_cooldown_time("laserbeam"))
-        self.spell_box(2*SPELL_BOX_SIZE + 30, 630, self.spell_img[2], False, "E", spell_data["heal"]["mana"], player.get_cooldown_time("laserbeam"))
+        self.spell_box(10, 640, self.spell_img[0], player.fireball_cooldown, "Space", spell_data["fireball"]["mana"])
+        self.spell_box(SPELL_BOX_SIZE + 20, 640, self.spell_img[1], player.laserbeam_cooldown, "Q", spell_data["laserbeam"]["mana"],  player.get_cooldown_time("laserbeam"))
+        self.spell_box(2*SPELL_BOX_SIZE + 30, 640, self.spell_img[2], False, "E", spell_data["heal"]["mana"], player.get_cooldown_time("laserbeam"))
+
+        self.stat_box(500, 660, "Health")
