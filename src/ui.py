@@ -15,6 +15,7 @@ class UI:
         # bar
         self.health_bar_rect = pygame.Rect(10, 10, HEALTH_BAR_WIDTH, BAR_HEIGHT)
         self.mana_bar_rect = pygame.Rect(10, 34, MANA_BAR_WIDTH, BAR_HEIGHT)
+        self.experience_rect = pygame.Rect(1060, 10, HEALTH_BAR_WIDTH, BAR_HEIGHT)
 
         self.stat_box_x = 940
 
@@ -47,14 +48,23 @@ class UI:
         self.display_surface.blit(text_surf, text_rect)
 
 
-    def show_exp(self, exp):
-        text_surf = self.exp_font.render(str(int(exp)), False, TEXT_COLOR)
-        x, y = self.display_surface.get_size()[0] - 20, 100
-        text_rect = text_surf.get_rect(bottomright = (x,y))
+    def show_exp(self, exp, max_exp, bg_rect, color):
+        pygame.draw.rect(self.display_surface, UI_BG_COLOR, bg_rect)
 
-        pygame.draw.rect(self.display_surface, UI_BG_COLOR, text_rect.inflate(20,10))
+        # zmiana statów na piksele
+        ratio = exp / max_exp
+        current_width = bg_rect.width * ratio
+        current_rect = bg_rect.copy()
+        current_rect.width = current_width
+
+        text_surf = self.bar_font.render(str(str(int(exp))+"/"+str(int(max_exp))), False, TEXT_COLOR)
+        text_rect = text_surf.get_rect()
+        text_rect.center = bg_rect.center
+        
+        pygame.draw.rect(self.display_surface, color, current_rect)
+        pygame.draw.rect(self.display_surface, UI_BORDER_COLOR, bg_rect, 3)
+
         self.display_surface.blit(text_surf, text_rect)
-        pygame.draw.rect(self.display_surface, UI_BORDER_COLOR, text_rect.inflate(20,10), 3)
 
     def spell_box(self, left, top, spell_img, cooldown, button, mana_cost, time = None):
         bg_rect = pygame.Rect(left, top, SPELL_BOX_SIZE, SPELL_BOX_SIZE)
@@ -115,7 +125,7 @@ class UI:
         self.show_bar(player.health, player.stats['health'], self.health_bar_rect, HEALTH_COLOR)
         self.show_bar(player.mana, player.stats['mana'], self.mana_bar_rect, MANA_COLOR)
 
-        self.show_exp(player.exp)
+        self.show_exp(player.exp, player.next_level_exp, self.experience_rect, EXP_COLOR)
 
         self.spell_box(10, 640, self.spell_img[0], player.fireball_cooldown, "Space", spell_data["fireball"]["mana"])
         self.spell_box(SPELL_BOX_SIZE + 20, 640, self.spell_img[1], player.laserbeam_cooldown, "Q", spell_data["laserbeam"]["mana"],  player.get_cooldown_time("laserbeam"))
@@ -143,3 +153,94 @@ class UI:
             if player.stats['speed'] < player.max_stats['speed']:
                 self.upgrade_box((self.stat_box_x + 5*STAT_BOX_SIZE + 33, 625), 'speed', player)
         self.mouse_was_pressed = self.mouse_clicked
+
+class StartMenu:
+    def __init__(self) -> None:
+        self.box_width = 300
+        self.box_height = 60
+
+        self.bg = pygame.image.load("img/assets/menu.png")
+        self.bg = pygame.transform.scale(self.bg, (WIDTH, HEIGTH))
+        self.text_color = '#fc4f53'
+
+        self.display_surface = pygame.display.get_surface()
+
+        self.color_inactive = pygame.Color('gray')
+        self.color_active = pygame.Color('#fc4f53')
+        self.color = self.color_inactive
+
+        self.active = False
+        self.username = 'Username'
+        self.can_write = True
+
+        self.font = pygame.font.Font(UI_FONT, 34)
+        self.x = 490
+        self.y = 270
+        self.username_input = pygame.Rect(self.x, self.y, self.box_width, self.box_height)
+
+    def menu_box(self, text: str, x, y, events):
+        bg_rect = pygame.Rect(x+10, y, self.box_width-20, self.box_height)
+
+        if bg_rect.collidepoint(pygame.mouse.get_pos()):
+            text = self.font.render(text, True, 'white')
+            pygame.draw.rect(self.display_surface, self.text_color, bg_rect)
+        else:
+            text = self.font.render(text, True, self.text_color)
+            pygame.draw.rect(self.display_surface, self.text_color, bg_rect, 3)
+
+        text_rect = text.get_rect(center=bg_rect.center)
+        self.display_surface.blit(text, text_rect)
+
+        return bg_rect
+
+    def get_input(self, input_box, events):
+
+        for event in events:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if input_box.collidepoint(event.pos):
+                    # Toggle the active variable.
+                    self.active = not self.active
+                    if self.username == 'Username':
+                        self.username = ''
+                else:
+                    self.active = False
+                # Change the current color of the input box.
+                self.color = self.color_active if self.active else self.color_inactive
+            if event.type == pygame.KEYDOWN:
+                if self.active:
+                    if event.key == pygame.K_RETURN:
+                        print(self.username)
+                        self.username = ''
+                    elif event.key == pygame.K_BACKSPACE:
+                        self.username = self.username[:-1]
+                    else:
+                        if self.can_write:
+                            self.username += event.unicode
+
+        txt_surface = self.font.render(self.username, True, self.color)
+        txt_rect = txt_surface.get_rect(center=input_box.center)
+        self.display_surface.blit(txt_surface, txt_rect)
+        pygame.draw.rect(self.display_surface, self.color, input_box, 2)
+
+        if txt_rect.width >= input_box.width-30:
+            self.can_write = False
+        else:
+            self.can_write = True
+
+
+    def display(self, events):
+        self.display_surface.blit(self.bg, (0,0))
+
+        self.get_input(self.username_input, events)
+        start_button = self.menu_box("Start", self.x,self.y+80, events)
+
+        for event in events:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if start_button.collidepoint(event.pos) and len(self.username) >= 3:
+                    return True
+        
+
+
+
+class End():
+    pass

@@ -39,6 +39,7 @@ COOLDOWN_COLOR = 'red'
 
 HEALTH_COLOR = 'red'
 MANA_COLOR = 'blue'
+EXP_COLOR = '#ad9115'
 UI_BORDER_COLOR_ACTIVE = 'gold'
 
 # informacje o zaklęciach

@@ -2,13 +2,16 @@ import pygame, sys
 from level import Level               
 from settings import *
 from pyvidplayer import Video
+from ui import StartMenu, End
 
-class Game:                
+class Game:
     def __init__(self) -> None:
         pygame.init()
         self.screen = pygame.display.set_mode((WIDTH, HEIGTH))
         self.clock = pygame.time.Clock()
         self.level = Level()
+        self.start_menu = StartMenu()
+        self.end_menu = End()
         # changing the title of the window
         pygame.display.set_caption("The Legend of Valdoria")
         self.vid = Video("Intro/Valdoria Intro.mp4")
@@ -27,12 +30,30 @@ class Game:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         self.vid.close()
-                        self.run()
+                        self.start()
                 elif event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
         
+        self.start()
+    
+    def start(self):
+        while True:
+            events = pygame.event.get()
+            for event in events:
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                
+            start = self.start_menu.display(events)
+            pygame.display.update()
+
+            if start:
+                self.username = self.start_menu.username
+                break
+        
         self.run()
+            
 
     # main loop
     def run(self):
