@@ -91,12 +91,15 @@ class Player(pygame.sprite.Sprite):
         self.idle_frame = self.idle_frames["right"]
 
         # staty
-        self.stats = {'health':100, 'mana':70, 'magic':1, 'speed':3, 'health_regen':6, 'mana_regen':5}
+        self.stats = {'health':100, 'mana':90, 'magic':1, 'speed':1, 'health_regen':5, 'mana_regen':5}
+        self.max_stats = {'health':500, 'mana':300, 'magic':10, 'speed':10, 'health_regen':20, 'mana_regen':20}
+        self.upgrade_value = {'health':50, 'mana':30, 'magic':1, 'speed':1, 'health_regen':2, 'mana_regen': 2}
         self.health = self.stats['health'] * 0.5
         self.mana = self.stats['mana'] * 0.8
         self.exp = 0
         self.level = 1
         self.next_level_exp = 80
+        self.ability_points = 15
         self.speed = self.stats['speed']
 
 
@@ -121,6 +124,12 @@ class Player(pygame.sprite.Sprite):
         self.level += 1
         self.exp -= self.next_level_exp
         self.next_level_exp = int(self.next_level_exp * 1.5)
+        self.ability_points += 1
+    
+    def upgrade(self, skill):
+        self.stats[skill] += self.upgrade_value[skill]
+        self.ability_points -= 1
+        print(skill, self.stats[skill])
     
     def create_attack_animation(self, row, num_frames, width = 64, heigth = 64):
         # Wczytujemy co czwartą klatkę, zaczynając od pierwszej klatki
@@ -128,7 +137,8 @@ class Player(pygame.sprite.Sprite):
 
     # Zwraca liczbę sekund które pozostały do ponownego użycia zaklęcia
     def get_cooldown_time(self, spell) -> str:
-        miliseconds = spell_data[spell]['cooldown'] - (self.current_time - self.previous_time_laserbeam)
+        previous_times = {"laserbeam":self.previous_time_laserbeam, "heal":self.previous_time_heal}
+        miliseconds = spell_data[spell]['cooldown'] - (self.current_time - previous_times[spell])
         seconds = int(miliseconds/1000)
 
         return str(seconds)
@@ -216,16 +226,16 @@ class Player(pygame.sprite.Sprite):
                         self.is_attacking = True
                         if self.idle_frame == self.idle_frames["up"]:
                             self.current_animation = self.animations["attack_up"]
-                            self.projectile = Fireball(self.rect.center, (self.visible_sprites, self.fireball_sprites), facing = "up", hit_sprites=self.obstacle_sprites)
+                            self.projectile = Fireball(self.rect.center, (self.visible_sprites, self.fireball_sprites), facing = "up", hit_sprites=self.obstacle_sprites, magic_power=self.stats["magic"])
                         elif self.idle_frame == self.idle_frames["left"]:
                             self.current_animation = self.animations["attack_left"]
-                            self.projectile = Fireball(self.rect.center, (self.visible_sprites, self.fireball_sprites), facing = "left", hit_sprites=self.obstacle_sprites)
+                            self.projectile = Fireball(self.rect.center, (self.visible_sprites, self.fireball_sprites), facing = "left", hit_sprites=self.obstacle_sprites, magic_power=self.stats["magic"])
                         elif self.idle_frame == self.idle_frames["down"]:
                             self.current_animation = self.animations["attack_down"]
-                            self.projectile = Fireball(self.rect.center, (self.visible_sprites, self.fireball_sprites), facing = "down", hit_sprites=self.obstacle_sprites)
+                            self.projectile = Fireball(self.rect.center, (self.visible_sprites, self.fireball_sprites), facing = "down", hit_sprites=self.obstacle_sprites, magic_power=self.stats["magic"])
                         elif self.idle_frame == self.idle_frames["right"]:
                             self.current_animation = self.animations["attack_right"]
-                            self.projectile = Fireball(self.rect.center, (self.visible_sprites, self.fireball_sprites), facing = "right", hit_sprites=self.obstacle_sprites)
+                            self.projectile = Fireball(self.rect.center, (self.visible_sprites, self.fireball_sprites), facing = "right", hit_sprites=self.obstacle_sprites, magic_power=self.stats["magic"])
 
                         self.previous_time_fireball = self.current_time
                     
@@ -236,16 +246,16 @@ class Player(pygame.sprite.Sprite):
                             self.is_attacking = True
                             if self.idle_frame == self.idle_frames["up"]:
                                 self.current_animation = self.animations["attack_up"]
-                                self.projectile = Laserbeam(self.rect.center, (self.visible_sprites, self.fireball_sprites), facing = "up", hit_sprites=self.obstacle_sprites)
+                                self.projectile = Laserbeam(self.rect.center, (self.visible_sprites, self.fireball_sprites), facing = "up", hit_sprites=self.obstacle_sprites, magic_power=self.stats["magic"])
                             elif self.idle_frame == self.idle_frames["left"]:
                                 self.current_animation = self.animations["attack_left"]
-                                self.projectile = Laserbeam(self.rect.center, (self.visible_sprites, self.fireball_sprites), facing = "left", hit_sprites=self.obstacle_sprites)
+                                self.projectile = Laserbeam(self.rect.center, (self.visible_sprites, self.fireball_sprites), facing = "left", hit_sprites=self.obstacle_sprites, magic_power=self.stats["magic"])
                             elif self.idle_frame == self.idle_frames["down"]:
                                 self.current_animation = self.animations["attack_down"]
-                                self.projectile = Laserbeam(self.rect.center, (self.visible_sprites, self.fireball_sprites), facing = "down", hit_sprites=self.obstacle_sprites)
+                                self.projectile = Laserbeam(self.rect.center, (self.visible_sprites, self.fireball_sprites), facing = "down", hit_sprites=self.obstacle_sprites, magic_power=self.stats["magic"])
                             elif self.idle_frame == self.idle_frames["right"]:
                                 self.current_animation = self.animations["attack_right"]
-                                self.projectile = Laserbeam(self.rect.center, (self.visible_sprites, self.fireball_sprites), facing = "right", hit_sprites=self.obstacle_sprites)
+                                self.projectile = Laserbeam(self.rect.center, (self.visible_sprites, self.fireball_sprites), facing = "right", hit_sprites=self.obstacle_sprites, magic_power=self.stats["magic"])
 
                             self.previous_time_laserbeam = self.current_time
 
@@ -287,7 +297,7 @@ class Player(pygame.sprite.Sprite):
         else:
             self.footstep_channel.stop()
 
-        self.move(self.speed)
+        self.move(self.stats["speed"])
 
         # Sprawdzenie granic mapy
         if self.hitbox.left < 0:

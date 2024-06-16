@@ -18,6 +18,8 @@ class UI:
 
         self.stat_box_x = 940
 
+        self.mouse_was_pressed = False
+
         self.spell_img = []
         for spell in spell_data.values():
             path = spell['img']
@@ -94,6 +96,19 @@ class UI:
         pygame.draw.rect(self.display_surface, UI_BORDER_COLOR, bg_rect, 3)
 
         self.display_surface.blit(stat_img, stat_rect)
+    
+    def upgrade_box(self, pos, skill, player):
+        path = "img/staticons/statup.png"
+        image = pygame.image.load(path).convert_alpha()
+        img_rect = image.get_rect(topleft = pos)
+
+        self.display_surface.blit(image, img_rect)
+
+        if self.mouse_clicked and not self.mouse_was_pressed:
+            x,y = pygame.mouse.get_pos()
+            if img_rect.collidepoint(x, y):
+                player.upgrade(skill)
+                print("upgrade")
 
 
     def display(self, player):
@@ -112,3 +127,19 @@ class UI:
         self.stat_box(self.stat_box_x + 3*STAT_BOX_SIZE + 15, 660, "Mana Regen", "img/staticons/manaregenicon.png")
         self.stat_box(self.stat_box_x + 4*STAT_BOX_SIZE + 20, 660, "Magic Power", "img/staticons/strenghticon.png")
         self.stat_box(self.stat_box_x + 5*STAT_BOX_SIZE + 25, 660, "Speed", "img/staticons/speedicon.png")
+
+        self.mouse_clicked = pygame.mouse.get_pressed()[0]
+        if player.ability_points > 0:
+            if player.stats['health'] < player.max_stats['health']:
+                self.upgrade_box((self.stat_box_x + 6, 625), 'health', player)
+            if player.stats['health_regen'] < player.max_stats['health_regen']:
+                self.upgrade_box((self.stat_box_x + STAT_BOX_SIZE + 13, 625), 'health_regen', player)
+            if player.stats['mana'] < player.max_stats['mana']:
+                self.upgrade_box((self.stat_box_x + 2*STAT_BOX_SIZE + 18, 625), 'mana', player)
+            if player.stats['mana_regen'] < player.max_stats['mana_regen']:
+                self.upgrade_box((self.stat_box_x + 3*STAT_BOX_SIZE + 23, 625), 'mana_regen', player)
+            if player.stats['magic'] < player.max_stats['magic']:
+                self.upgrade_box((self.stat_box_x + 4*STAT_BOX_SIZE + 28, 625), 'magic', player)
+            if player.stats['speed'] < player.max_stats['speed']:
+                self.upgrade_box((self.stat_box_x + 5*STAT_BOX_SIZE + 33, 625), 'speed', player)
+        self.mouse_was_pressed = self.mouse_clicked

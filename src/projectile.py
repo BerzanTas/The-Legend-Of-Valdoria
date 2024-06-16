@@ -4,7 +4,7 @@ from time import sleep
 
 class Fireball(pygame.sprite.Sprite):
 
-    def __init__(self, pos, groups, facing, hit_sprites, radius=FIREBALL_RADIUS) -> None:
+    def __init__(self, pos, groups, facing, hit_sprites, magic_power, radius=FIREBALL_RADIUS) -> None:
         super().__init__(groups)
         self.sprite_sheet = pygame.image.load("img/spells/fireball.png").convert_alpha()
         self.image = self.get_sprite(self.sprite_sheet, 0, 0, 48, 48)
@@ -18,6 +18,7 @@ class Fireball(pygame.sprite.Sprite):
         self.facing = facing
         self.direction = None
         self.collide = False
+        self.magic_power = magic_power
 
         self.shoot_animation = [self.get_sprite(self.sprite_sheet, i, 0, 48, 48) for i in range(4)]
         self.explode_animation = [self.get_sprite(self.sprite_sheet, i, 0, 48, 48, 5*48) for i in range(6)]
@@ -84,7 +85,7 @@ class Fireball(pygame.sprite.Sprite):
                 self.fireball_channel.play(self.explosion_sound)
 
                 if hasattr(sprite, 'take_damage'):
-                    sprite.take_damage(spell_data['fireball']['damage'])
+                    sprite.take_damage(spell_data['fireball']['damage']*self.magic_power)
 
     def play_sound(self, sound):
         sound.play()
@@ -132,7 +133,7 @@ class Fireball(pygame.sprite.Sprite):
 
 
 class Laserbeam(pygame.sprite.Sprite):
-    def __init__(self, pos, groups, facing, hit_sprites) -> None:
+    def __init__(self, pos, groups, facing, hit_sprites, magic_power) -> None:
         super().__init__(groups)
 
         self.sprite_sheet = pygame.image.load("img/spells/laserbeam.png").convert_alpha()
@@ -140,6 +141,7 @@ class Laserbeam(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft=pos)
         self.rect.move_ip(10, -15)
         self.hitbox = self.rect.inflate(-10,-40)
+        self.magic_power = magic_power
 
         self.facing = facing
         self.hit_sprites = hit_sprites
@@ -189,7 +191,7 @@ class Laserbeam(pygame.sprite.Sprite):
                 print("Laser beam hits target!")
 
                 if hasattr(sprite, 'take_damage'):
-                    sprite.take_damage(spell_data['laserbeam']['damage'])
+                    sprite.take_damage(spell_data['laserbeam']['damage']*self.magic_power)
 
     
     def update(self):
