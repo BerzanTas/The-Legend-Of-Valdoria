@@ -12,7 +12,7 @@ class Level:
         # Pobierz powierzchnię wyświetlania
         self.display_surface = pygame.display.get_surface()
 
-        self.grass_image = pygame.image.load("img/grass.png").convert_alpha()
+        self.grass_image = pygame.image.load("img/assets/grass.png").convert_alpha()
         self.grass_image = pygame.transform.scale(self.grass_image, (TILESIZE,TILESIZE))
         # Grupy sprite'ów (dodanie warstwowania)
         self.visible_sprites = YSortCameraGroup()
@@ -87,7 +87,7 @@ class YSortCameraGroup(pygame.sprite.Group):
         self.half_height = self.display_surface.get_size()[1] // 2
         self.offset = pygame.math.Vector2()
 
-        self.grass_image = pygame.image.load("img/grass.png").convert_alpha()
+        self.grass_image = pygame.image.load("img/assets/grass.png").convert_alpha()
         self.grass_image = pygame.transform.scale(self.grass_image, (TILESIZE, TILESIZE))
 
     def custom_draw(self, player):

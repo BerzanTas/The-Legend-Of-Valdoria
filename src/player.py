@@ -2,11 +2,12 @@ import pygame
 from settings import *
 from projectile import Fireball, Laserbeam
 from enemy import Skeleton, Slime
+from particles import AnimationPlayer
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos, groups, obstacle_sprites, fireball_sprites, visible_sprites):
         super().__init__(groups)
-        self.sprite_sheet = pygame.image.load("img/playersprite.png").convert_alpha()
+        self.sprite_sheet = pygame.image.load("img/assets/playersprite.png").convert_alpha()
         self.image = self.get_sprite(self.sprite_sheet, 0, 11, SPRITE_WIDTH, SPRITE_HEIGHT)  # Pierwsza klatka z 11 rzędu (idle)
         self.rect = self.image.get_rect(topleft=pos)
         self.hitbox = self.rect.inflate(-30,-20)
@@ -25,12 +26,18 @@ class Player(pygame.sprite.Sprite):
         self.direction = pygame.math.Vector2()
 
         # countdown dla fireball
-        self.previous_time_fireball = -2000
+        self.previous_time_fireball = 0
         self.fireball_cooldown = False
 
         # countdown dla laserbeam
-        self.previous_time_laserbeam = -30010
+        self.previous_time_laserbeam = 0
         self.laserbeam_cooldown = False
+        
+        # countdown dla heal
+        self.previous_time_heal = 0
+        self.heal_cooldown = False
+
+        self.animation_player = AnimationPlayer()
 
         # EFEKTY GŁOSOWE
 
@@ -62,12 +69,17 @@ class Player(pygame.sprite.Sprite):
             "attack_left": self.create_attack_animation(50, 8),
             "attack_down": self.create_attack_animation(53, 8),
             "attack_right": self.create_attack_animation(56, 8),
+            "heal_up": self.create_animation(self.sprite_sheet, 0, 7, SPRITE_WIDTH, SPRITE_HEIGHT),
+            "heal_left": self.create_animation(self.sprite_sheet, 1, 7, SPRITE_WIDTH, SPRITE_HEIGHT),
+            "heal_down": self.create_animation(self.sprite_sheet, 2, 7, SPRITE_WIDTH, SPRITE_HEIGHT),
+            "heal_right": self.create_animation(self.sprite_sheet, 3, 7, SPRITE_WIDTH, SPRITE_HEIGHT),
         }
 
         self.current_animation = None
         self.current_frame = 0
         self.animation_speed = ANIMATION_SPEED
         self.is_attacking = False
+        self.is_healing = False
 
         # Klatki spoczynkowe dla każdego kierunku
         self.idle_frames = {
@@ -116,9 +128,8 @@ class Player(pygame.sprite.Sprite):
 
     # Zwraca liczbę sekund które pozostały do ponownego użycia zaklęcia
     def get_cooldown_time(self, spell) -> str:
-        if spell == "laserbeam":
-            miliseconds = spell_data['laserbeam']['cooldown'] - (self.current_time - self.previous_time_laserbeam)
-            seconds = int(miliseconds/1000)
+        miliseconds = spell_data[spell]['cooldown'] - (self.current_time - self.previous_time_laserbeam)
+        seconds = int(miliseconds/1000)
 
         return str(seconds)
     
@@ -173,11 +184,12 @@ class Player(pygame.sprite.Sprite):
                 self.kill()
         else:
             self.current_time = pygame.time.get_ticks()
-            self.fireball_cooldown = False if self.current_time - self.previous_time_fireball >= spell_data['fireball']['cooldown'] else True
-            self.laserbeam_cooldown = False if self.current_time - self.previous_time_laserbeam >= spell_data["laserbeam"]["cooldown"]  else True
-        
+            self.fireball_cooldown = False if self.previous_time_fireball == 0 or self.current_time - self.previous_time_fireball >= spell_data['fireball']['cooldown'] else True
+            self.laserbeam_cooldown = False if self.previous_time_laserbeam == 0 or self.current_time - self.previous_time_laserbeam >= spell_data["laserbeam"]["cooldown"]  else True
+            self.heal_cooldown = False if self.previous_time_heal == 0 or self.current_time - self.previous_time_heal >= spell_data["heal"]["cooldown"]  else True
+
             keys = pygame.key.get_pressed()
-            if not self.is_attacking:
+            if not self.is_attacking and not self.is_healing:
                 self.current_animation = None
                 self.direction.x = 0
                 self.direction.y = 0
@@ -236,10 +248,32 @@ class Player(pygame.sprite.Sprite):
                                 self.projectile = Laserbeam(self.rect.center, (self.visible_sprites, self.fireball_sprites), facing = "right", hit_sprites=self.obstacle_sprites)
 
                             self.previous_time_laserbeam = self.current_time
+
+                elif keys[pygame.K_e]:
+                    if not self.heal_cooldown:
+                        if self.mana_handler("heal"):
+                            self.is_healing = True
+                            if self.idle_frame == self.idle_frames["up"]:
+                                self.current_animation = self.animations["heal_up"]
+                            elif self.idle_frame == self.idle_frames["left"]:
+                                self.current_animation = self.animations["heal_left"]
+                            elif self.idle_frame == self.idle_frames["down"]:
+                                self.current_animation = self.animations["heal_down"]
+                            elif self.idle_frame == self.idle_frames["right"]:
+                                self.current_animation = self.animations["heal_right"]
+                            
+                            # przywróć 20% życia
+                            self.health += self.stats["health"] * spell_data["heal"]["heal_percent"]
+                            if self.health > self.stats["health"]:
+                                self.health = self.stats["health"]
+                            self.animation_player.create_healing_particles(self.hitbox.center, self.visible_sprites)
+                            self.previous_time_heal = self.current_time
+
                 
             else:
                 if self.current_frame >= len(self.current_animation) - 1:
                     self.is_attacking = False
+                    self.is_healing = False
                     self.current_frame = 0
 
                 

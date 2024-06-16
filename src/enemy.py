@@ -94,7 +94,7 @@ class Skeleton(Enemy):
     def __init__(self, pos, groups, obstacle_sprites, visible_sprites, player, level, exp):
         super().__init__(pos, groups, obstacle_sprites, visible_sprites, player, level, exp)
         
-        self.sprite_sheet = pygame.image.load("img/skeleton.png").convert_alpha()
+        self.sprite_sheet = pygame.image.load("img/assets/skeleton.png").convert_alpha()
         self.image = self.get_sprite(self.sprite_sheet, 0, 0, skeleton_width, skeleton_height, scale=(80, 80))
         
         self.rect = self.image.get_rect()
@@ -205,7 +205,7 @@ class Slime(Enemy):
     def __init__(self, pos, groups, obstacle_sprites, visible_sprites, player, level, exp):
         super().__init__(pos, groups, obstacle_sprites, visible_sprites, player, level, exp)
 
-        self.sprite_sheet = pygame.image.load("img/slime.png").convert_alpha()
+        self.sprite_sheet = pygame.image.load("img/assets/slime.png").convert_alpha()
         self.image = self.get_sprite(self.sprite_sheet, 0, 0, slime_width, slime_height, scale=(64, 64))
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
@@ -267,8 +267,8 @@ class Nightborne(Enemy):
     def __init__(self, pos, groups, obstacle_sprites, visible_sprites, player, level, exp):
         super().__init__(pos, groups, obstacle_sprites, visible_sprites, player, level, exp)
 
-        self.sprite_sheet = pygame.image.load("img/night.png").convert_alpha()
-        self.image = self.get_sprite(self.sprite_sheet, 0, 0, nightborne_width, nightborne_height, scale=(80, 80))
+        self.sprite_sheet = pygame.image.load("img/assets/night.png").convert_alpha()
+        self.image = self.get_sprite(self.sprite_sheet, 0, 0, nightborne_width, nightborne_height, scale=(120, 120))
         
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
@@ -320,7 +320,7 @@ class Nightborne(Enemy):
             if distance_to_player < self.attack_radius:
                 if not self.is_attacking:
                     self.start_attack()
-                self.check_attack(10)
+                self.check_attack()
             elif distance_to_player < self.follow_radius:
                 self.move_towards_player()
             else:

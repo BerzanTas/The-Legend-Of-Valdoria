@@ -1,4 +1,5 @@
 import pygame
+import pygame.locals
 from settings import *
 from projectile import *
 
@@ -14,6 +15,8 @@ class UI:
         # bar
         self.health_bar_rect = pygame.Rect(10, 10, HEALTH_BAR_WIDTH, BAR_HEIGHT)
         self.mana_bar_rect = pygame.Rect(10, 34, MANA_BAR_WIDTH, BAR_HEIGHT)
+
+        self.stat_box_x = 940
 
         self.spell_img = []
         for spell in spell_data.values():
@@ -44,7 +47,7 @@ class UI:
 
     def show_exp(self, exp):
         text_surf = self.exp_font.render(str(int(exp)), False, TEXT_COLOR)
-        x, y = self.display_surface.get_size()[0] - 20, self.display_surface.get_size()[1] - 20
+        x, y = self.display_surface.get_size()[0] - 20, 100
         text_rect = text_surf.get_rect(bottomright = (x,y))
 
         pygame.draw.rect(self.display_surface, UI_BG_COLOR, text_rect.inflate(20,10))
@@ -82,12 +85,15 @@ class UI:
         spell_img.blit(mana_cost, mana_cost_rect)
 
     
-    def stat_box(self, left, top, stat_name):
+    def stat_box(self, left, top, stat_name, path):
         bg_rect = pygame.Rect(left, top, STAT_BOX_SIZE, STAT_BOX_SIZE)
+        stat_img = pygame.image.load(path)
+        stat_rect = stat_img.get_rect(center = bg_rect.center)
+
         pygame.draw.rect(self.display_surface, UI_BG_COLOR, bg_rect)
         pygame.draw.rect(self.display_surface, UI_BORDER_COLOR, bg_rect, 3)
 
-        
+        self.display_surface.blit(stat_img, stat_rect)
 
 
     def display(self, player):
@@ -98,6 +104,11 @@ class UI:
 
         self.spell_box(10, 640, self.spell_img[0], player.fireball_cooldown, "Space", spell_data["fireball"]["mana"])
         self.spell_box(SPELL_BOX_SIZE + 20, 640, self.spell_img[1], player.laserbeam_cooldown, "Q", spell_data["laserbeam"]["mana"],  player.get_cooldown_time("laserbeam"))
-        self.spell_box(2*SPELL_BOX_SIZE + 30, 640, self.spell_img[2], False, "E", spell_data["heal"]["mana"], player.get_cooldown_time("laserbeam"))
+        self.spell_box(2*SPELL_BOX_SIZE + 30, 640, self.spell_img[2], player.heal_cooldown, "E", spell_data["heal"]["mana"], player.get_cooldown_time("heal"))
 
-        self.stat_box(500, 660, "Health")
+        self.stat_box(self.stat_box_x, 660, "Health", "img/staticons/healthicon.png")
+        self.stat_box(self.stat_box_x + STAT_BOX_SIZE + 5, 660, "Health Regen", "img/staticons/healthregenicon.png")
+        self.stat_box(self.stat_box_x + 2*STAT_BOX_SIZE + 10, 660, "Mana", "img/staticons/manaicon.png")
+        self.stat_box(self.stat_box_x + 3*STAT_BOX_SIZE + 15, 660, "Mana Regen", "img/staticons/manaregenicon.png")
+        self.stat_box(self.stat_box_x + 4*STAT_BOX_SIZE + 20, 660, "Magic Power", "img/staticons/strenghticon.png")
+        self.stat_box(self.stat_box_x + 5*STAT_BOX_SIZE + 25, 660, "Speed", "img/staticons/speedicon.png")

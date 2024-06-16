@@ -4,7 +4,7 @@ from settings import *
 class Portal(pygame.sprite.Sprite):
     def __init__(self, pos, groups):
         super().__init__(groups)
-        self.sprite_sheet = pygame.image.load("img/portal.png").convert_alpha()
+        self.sprite_sheet = pygame.image.load("img/assets/portal.png").convert_alpha()
         self.frames = self.load_frames()
         self.current_frame = 0
         self.image = self.frames[self.current_frame]
@@ -38,7 +38,7 @@ class Portal(pygame.sprite.Sprite):
 class Water(pygame.sprite.Sprite):
     def __init__(self, pos, groups):
         super().__init__(groups)
-        self.sprite_sheet = pygame.image.load("img/water-sheet.png").convert_alpha()
+        self.sprite_sheet = pygame.image.load("img/assets/water-sheet.png").convert_alpha()
         self.frames = self.load_frames()
         self.current_frame = 0
         self.image = self.frames[self.current_frame]
@@ -72,7 +72,7 @@ class Water(pygame.sprite.Sprite):
 class bloodtower(pygame.sprite.Sprite):
     def __init__(self, pos, groups):
         super().__init__(groups)
-        self.sprite_sheet = pygame.image.load("img/blood.png").convert_alpha()
+        self.sprite_sheet = pygame.image.load("img/assets/blood.png").convert_alpha()
         self.frames = self.load_frames()
         self.current_frame = 0
         self.image = self.frames[self.current_frame]

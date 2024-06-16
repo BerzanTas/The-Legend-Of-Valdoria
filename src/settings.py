@@ -45,8 +45,8 @@ UI_BORDER_COLOR_ACTIVE = 'gold'
 
 spell_data = {
     'fireball': {'cooldown': 1000, 'damage': 10, 'mana': 5, 'img': 'img/spells/fireballicon.png'},
-    'laserbeam': {'cooldown': 11000, 'damage': 80, 'mana': 20,'img': 'img/spells/laserbeamicon.png'},
-    'heal': {'cooldown': 40000, 'heal': 40, 'mana': 30,'img': 'img/spells/healicon.png'}
+    'laserbeam': {'cooldown': 12000, 'damage': 80, 'mana': 20,'img': 'img/spells/laserbeamicon.png'},
+    'heal': {'cooldown': 20000, 'heal_percent': 0.2, 'mana': 30,'img': 'img/spells/healicon.png'}
 }
 
 ##SLIME
