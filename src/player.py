@@ -5,6 +5,8 @@ from enemy import Skeleton, Slime
 from particles import AnimationPlayer
 
 class Player(pygame.sprite.Sprite):
+    username = None
+    
     def __init__(self, pos, groups, obstacle_sprites, fireball_sprites, visible_sprites):
         super().__init__(groups)
         self.sprite_sheet = pygame.image.load("img/assets/playersprite.png").convert_alpha()

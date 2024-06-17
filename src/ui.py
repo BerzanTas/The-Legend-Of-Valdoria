@@ -9,6 +9,7 @@ class UI:
         self.display_surface = pygame.display.get_surface()
         self.exp_font = pygame.font.Font(UI_FONT, UI_FONT_SIZE)
         self.bar_font = pygame.font.Font(UI_FONT, 14)
+        self.user_font = pygame.font.Font(SPELL_FONT, 14)
         self.spell_font = pygame.font.Font(SPELL_FONT, 20)
         self.cooldown_font = pygame.font.FontType(UI_FONT, 28)
 
@@ -122,6 +123,7 @@ class UI:
 
 
     def display(self, player):
+
         self.show_bar(player.health, player.stats['health'], self.health_bar_rect, HEALTH_COLOR)
         self.show_bar(player.mana, player.stats['mana'], self.mana_bar_rect, MANA_COLOR)
 
@@ -220,7 +222,7 @@ class StartMenu:
         txt_surface = self.font.render(self.username, True, self.color)
         txt_rect = txt_surface.get_rect(center=input_box.center)
         self.display_surface.blit(txt_surface, txt_rect)
-        pygame.draw.rect(self.display_surface, self.color, input_box, 2)
+        pygame.draw.rect(self.display_surface, self.color, input_box, 2, 15)
 
         if txt_rect.width >= input_box.width-30:
             self.can_write = False

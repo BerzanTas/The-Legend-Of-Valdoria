@@ -3,6 +3,7 @@ from level import Level
 from settings import *
 from pyvidplayer import Video
 from ui import StartMenu, End
+from player import Player
 
 class Game:
     def __init__(self) -> None:
@@ -49,7 +50,7 @@ class Game:
             pygame.display.update()
 
             if start:
-                self.username = self.start_menu.username
+                Player.username = self.start_menu.username
                 break
         
         self.run()

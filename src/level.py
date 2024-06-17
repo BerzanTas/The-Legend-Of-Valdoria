@@ -90,6 +90,8 @@ class YSortCameraGroup(pygame.sprite.Group):
         self.grass_image = pygame.image.load("img/assets/grass.png").convert_alpha()
         self.grass_image = pygame.transform.scale(self.grass_image, (TILESIZE, TILESIZE))
 
+        self.user_font = pygame.font.Font(SPELL_FONT, 14)
+
     def custom_draw(self, player):
 
         self.offset.x = player.rect.centerx - self.half_width
@@ -117,16 +119,30 @@ class YSortCameraGroup(pygame.sprite.Group):
 
         # Rysowanie XP i poziomu gracza
         self.draw_xp_texts(player)
-        self.draw_level(player)
+        self.show_username(player.username, player)
+        self.show_level(player)
 
     def draw_xp_texts(self, player):
         for text in player.xp_texts:
             xp_surface = pygame.font.Font(None, 20).render(f"+{text['amount']}xp", True, (255, 255, 0))
-            offset_pos = pygame.Vector2(player.rect.centerx, player.rect.top - 10) - self.offset
+            offset_pos = pygame.Vector2(player.rect.centerx, player.rect.top + 30) - self.offset
             self.display_surface.blit(xp_surface, offset_pos)
-
-    def draw_level(self, player):
-        level_surface = pygame.font.Font(None, 20).render(f"Level {player.level}", True, (255, 255, 255))
-        offset_pos = pygame.Vector2(player.rect.centerx - level_surface.get_width() // 2, player.rect.top - 40) - self.offset
-        self.display_surface.blit(level_surface, offset_pos)
     
+    def show_username(self, username, player):
+        username_surf = self.user_font.render(username, False, TEXT_COLOR)
+        #username_rect = username_surf.get_rect(center=player_rect.center)
+        #username_rect.move_ip(0,-55)
+
+        #self.display_surface.blit(username_surf, username_rect)
+        offset_pos = pygame.Vector2(player.rect.centerx - username_surf.get_width() // 2, player.rect.top - 20) - self.offset
+        self.display_surface.blit(username_surf, offset_pos)
+    
+    def show_level(self,player):
+        level_surf = self.user_font.render(f"lvl {player.level}", False, TEXT_COLOR)
+        #level_rect = level_surface.get_rect(center=player_rect.center)
+        #level_rect.move_ip(0,-38)
+
+        #self.display_surface.blit(level_surface, level_rect)
+
+        offset_pos = pygame.Vector2(player.rect.centerx - level_surf.get_width() // 2, player.rect.top - 5) - self.offset
+        self.display_surface.blit(level_surf, offset_pos)
