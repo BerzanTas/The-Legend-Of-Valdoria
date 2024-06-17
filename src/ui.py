@@ -2,6 +2,7 @@ import pygame
 import pygame.locals
 from settings import *
 from projectile import *
+import sys
 
 class UI:
     def __init__(self) -> None:
@@ -177,7 +178,7 @@ class StartMenu:
 
         self.font = pygame.font.Font(UI_FONT, 34)
         self.x = 490
-        self.y = 270
+        self.y = 240
         self.username_input = pygame.Rect(self.x, self.y, self.box_width, self.box_height)
 
     def menu_box(self, text: str, x, y, events):
@@ -235,11 +236,15 @@ class StartMenu:
 
         self.get_input(self.username_input, events)
         start_button = self.menu_box("Start", self.x,self.y+80, events)
+        settings_button = self.menu_box("Settings", self.x, self.y+220, events)
+        quit_button = self.menu_box("Quit", self.x, self.y+300, events)
 
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if start_button.collidepoint(event.pos) and len(self.username) >= 3:
                     return True
+                elif quit_button.collidepoint(event.pos):
+                    sys.exit()
         
 
 

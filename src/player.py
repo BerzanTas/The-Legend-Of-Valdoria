@@ -101,7 +101,7 @@ class Player(pygame.sprite.Sprite):
         self.exp = 0
         self.level = 1
         self.next_level_exp = 80
-        self.ability_points = 15
+        self.ability_points = 5
         self.speed = self.stats['speed']
 
 

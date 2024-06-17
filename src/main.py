@@ -39,6 +39,9 @@ class Game:
         self.start()
     
     def start(self):
+        pygame.mixer.music.set_volume(0.1)
+        pygame.mixer.music.play()
+
         while True:
             events = pygame.event.get()
             for event in events:
@@ -58,8 +61,7 @@ class Game:
 
     # main loop
     def run(self):
-        pygame.mixer.music.set_volume(0.1)
-        pygame.mixer.music.play(fade_ms=10000)
+        
         
         while True:
             # check the events, and if it is QUIT event then close the game
