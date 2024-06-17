@@ -27,6 +27,9 @@ class Level:
         # UI
         self.ui = UI()
 
+        #lista obiektów do respawnu
+        self.respawn_list = []
+
     def create_map(self):
         for row_index, row in enumerate(WORLD_MAP):
             for col_index, col in enumerate(row):
@@ -42,9 +45,9 @@ class Level:
                 if col == 'x':
                     Tile((x, y), (self.visible_sprites, self.obstacle_sprites), 'rock')
                 elif col == 's':
-                    self.slime = Slime((x, y), (self.visible_sprites, self.obstacle_sprites), self.obstacle_sprites, self.visible_sprites, self.player, 1, exp=50)
+                    self.slime = Slime((x, y), (self.visible_sprites, self.obstacle_sprites), self.obstacle_sprites, self.visible_sprites, self.player, 1, exp=50, level_instance=self)
                 elif col == 'sk':
-                    self.slime = Skeleton((x, y), (self.visible_sprites, self.obstacle_sprites), self.obstacle_sprites, self.visible_sprites, self.player, 2, exp=150)
+                    self.slime = Skeleton((x, y), (self.visible_sprites, self.obstacle_sprites), self.obstacle_sprites, self.visible_sprites, self.player, 2, exp=150, level_instance=self)
                 elif col == "tr1": #drzewo 1
                     Tile((x, y), (self.visible_sprites, self.obstacle_sprites), 'tree1', layer=2)
                 elif col == "portal":  # portal
@@ -62,7 +65,7 @@ class Level:
                 elif col == "hd":
                     Tile((x,y), (self.visible_sprites, self.obstacle_sprites), 'head', layer=2)
                 elif col == "borne":
-                    self.night = Nightborne((x, y), (self.visible_sprites, self.obstacle_sprites), self.obstacle_sprites, self.visible_sprites, self.player, 2, 10)
+                    self.night = Nightborne((x, y), (self.visible_sprites, self.obstacle_sprites), self.obstacle_sprites, self.visible_sprites, self.player, 2, 100, level_instance=self)
                 elif col == "bld":  #woda
                     bloodtower((x, y), (self.visible_sprites, self.obstacle_sprites))
     def draw_background(self):
@@ -77,6 +80,29 @@ class Level:
         self.fireball_sprites.update()
 
         self.ui.display(self.player)
+
+        #aktualizacja respawnu
+        self.update_respawn()
+    def update_respawn(self):
+        current_time = pygame.time.get_ticks()
+        for respawn_info in self.respawn_list[:]:
+            if current_time - respawn_info['death_time'] > 6000:  # 1 minuta = 60000 ms
+                enemy_class = respawn_info['class']
+                pos = respawn_info['pos']
+                level = respawn_info['level']
+                exp = respawn_info['exp']
+                new_enemy = enemy_class(pos, (self.visible_sprites, self.obstacle_sprites), self.obstacle_sprites, self.visible_sprites, self.player, level, exp, level_instance=self)
+                self.respawn_list.remove(respawn_info)
+
+    def add_to_respawn_list(self, enemy):
+        respawn_info = {
+            'class': enemy.__class__,
+            'pos': enemy.rect.topleft,
+            'level': enemy.level,
+            'exp': enemy.exp,
+            'death_time': pygame.time.get_ticks()
+        }
+        self.respawn_list.append(respawn_info)
     
 class YSortCameraGroup(pygame.sprite.Group):
     def __init__(self):

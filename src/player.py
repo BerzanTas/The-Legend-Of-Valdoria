@@ -1,7 +1,7 @@
 import pygame
 from settings import *
 from projectile import Fireball, Laserbeam
-from enemy import Skeleton, Slime
+from enemy import Skeleton, Slime,Nightborne
 from particles import AnimationPlayer
 
 class Player(pygame.sprite.Sprite):
@@ -341,6 +341,8 @@ class Player(pygame.sprite.Sprite):
                     if isinstance(sprite, Slime):
                         continue  # ignoruj kolizję z slime
                     if isinstance(sprite, Skeleton):
+                        continue
+                    if isinstance(sprite, Nightborne):
                         continue
             
                     if direction == 'horizontal':

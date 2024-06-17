@@ -1,8 +1,9 @@
 import pygame
 from settings import *
 
+
 class Enemy(pygame.sprite.Sprite):
-    def __init__(self, pos, groups, obstacle_sprites, visible_sprites, player, level, exp):
+    def __init__(self, pos, groups, obstacle_sprites, visible_sprites, player, level, exp, level_instance):
         super().__init__(groups)
         self.obstacle_sprites = obstacle_sprites
         self.visible_sprites = visible_sprites
@@ -12,6 +13,8 @@ class Enemy(pygame.sprite.Sprite):
         self.font = pygame.font.Font(None, 24)
         self.level_text = self.font.render(f"lvl {level}", True, (255, 255, 255))
         self.exp = exp
+        self.level = level
+        self.level_instance = level_instance
     
     def get_sprite(self, sheet, x, y, width, height, offset=0, scale=None, flip=False):
         image = pygame.Surface((width, height), pygame.SRCALPHA)
@@ -76,6 +79,9 @@ class Enemy(pygame.sprite.Sprite):
                 self.current_animation = self.animations["death"]
                 self.current_frame = 0
                 self.player.gain_exp(self.exp)
+                self.level_instance.add_to_respawn_list(self)
+                
+                
 
     def start_attack(self):
         self.set_attack_animation()
@@ -91,8 +97,8 @@ class Enemy(pygame.sprite.Sprite):
 
 
 class Skeleton(Enemy):
-    def __init__(self, pos, groups, obstacle_sprites, visible_sprites, player, level, exp):
-        super().__init__(pos, groups, obstacle_sprites, visible_sprites, player, level, exp)
+    def __init__(self, pos, groups, obstacle_sprites, visible_sprites, player, level, exp, level_instance):
+        super().__init__(pos, groups, obstacle_sprites, visible_sprites, player, level, exp, level_instance)
         
         self.sprite_sheet = pygame.image.load("img/assets/skeleton.png").convert_alpha()
         self.image = self.get_sprite(self.sprite_sheet, 0, 0, skeleton_width, skeleton_height, scale=(80, 80))
@@ -202,8 +208,8 @@ class Skeleton(Enemy):
 
 
 class Slime(Enemy):
-    def __init__(self, pos, groups, obstacle_sprites, visible_sprites, player, level, exp):
-        super().__init__(pos, groups, obstacle_sprites, visible_sprites, player, level, exp)
+    def __init__(self, pos, groups, obstacle_sprites, visible_sprites, player, level, exp, level_instance):
+        super().__init__(pos, groups, obstacle_sprites, visible_sprites, player, level, exp, level_instance)
 
         self.sprite_sheet = pygame.image.load("img/assets/slime.png").convert_alpha()
         self.image = self.get_sprite(self.sprite_sheet, 0, 0, slime_width, slime_height, scale=(64, 64))
@@ -264,8 +270,8 @@ class Slime(Enemy):
             self.current_animation = self.animations["stand"]
 
 class Nightborne(Enemy):
-    def __init__(self, pos, groups, obstacle_sprites, visible_sprites, player, level, exp):
-        super().__init__(pos, groups, obstacle_sprites, visible_sprites, player, level, exp)
+    def __init__(self, pos, groups, obstacle_sprites, visible_sprites, player, level, exp, level_instance):
+        super().__init__(pos, groups, obstacle_sprites, visible_sprites, player, level, exp, level_instance)
 
         self.sprite_sheet = pygame.image.load("img/assets/night.png").convert_alpha()
         self.image = self.get_sprite(self.sprite_sheet, 0, 0, nightborne_width, nightborne_height, scale=(120, 120))
@@ -283,13 +289,13 @@ class Nightborne(Enemy):
         self.last_attack_time = 0
 
         self.animations = {
-            "stand": self.create_animation(self.sprite_sheet, 0, 9, nightborne_width, nightborne_height, scale=(80, 80)),
-            "move_right": self.create_animation(self.sprite_sheet, 1, 6, nightborne_width, nightborne_height, scale=(80, 80)),
-            "move_left": self.create_animation(self.sprite_sheet, 1, 6, nightborne_width, nightborne_height, scale=(80, 80), flip=True),
-            "move_top": self.create_animation(self.sprite_sheet, 1, 6, nightborne_width, nightborne_height, scale=(80, 80), flip=True),
-            "move_bottom": self.create_animation(self.sprite_sheet, 1, 6, nightborne_width, nightborne_height, scale=(80, 80), flip=True),
-            "attack": self.create_animation(self.sprite_sheet, 2, 12, nightborne_width, nightborne_height, scale=(80, 80)),
-            "death": self.create_animation(self.sprite_sheet, 4, 22, nightborne_width, nightborne_height, scale=(80, 80))
+            "stand": self.create_animation(self.sprite_sheet, 0, 9, nightborne_width, nightborne_height, scale=(120, 120)),
+            "move_right": self.create_animation(self.sprite_sheet, 1, 6, nightborne_width, nightborne_height, scale=(120, 120)),
+            "move_left": self.create_animation(self.sprite_sheet, 1, 6, nightborne_width, nightborne_height, scale=(120, 120), flip=True),
+            "move_top": self.create_animation(self.sprite_sheet, 1, 6, nightborne_width, nightborne_height, scale=(120, 120), flip=True),
+            "move_bottom": self.create_animation(self.sprite_sheet, 1, 6, nightborne_width, nightborne_height, scale=(120, 120), flip=True),
+            "attack": self.create_animation(self.sprite_sheet, 2, 12, nightborne_width, nightborne_height, scale=(120, 120)),
+            "death": self.create_animation(self.sprite_sheet, 4, 22, nightborne_width, nightborne_height, scale=(120, 120))
         }
 
         self.current_animation = self.animations["stand"]
