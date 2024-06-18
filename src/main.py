@@ -21,7 +21,7 @@ class Game:
         pygame.mixer.music.load("sounds/music/valdoria1.mp3")
         for i in range(2,6):
             pygame.mixer.music.queue(f"sounds/music/valdoria{i}.mp3")
-    
+        print("Game initialized with level:", type(self.level))
     def intro(self):
         while self.vid.active:
             self.vid.draw(self.screen, (0,0), False)
