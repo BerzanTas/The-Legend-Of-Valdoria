@@ -1,4 +1,4 @@
-![](img/Valdoria.png)
+![](img/assets/Valdoria.png)
 # The Legend of Valdoria
 Top-Down fantasy game.
 Project for our OOP course.
