@@ -1,7 +1,6 @@
 import pygame
 from settings import *
 
-
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, pos, groups, obstacle_sprites, visible_sprites, player, level, exp, level_instance):
         super().__init__(groups)
@@ -10,12 +9,30 @@ class Enemy(pygame.sprite.Sprite):
         self.player = player
         self.alive = True
         self.dying = False
-        self.font = pygame.font.Font(None, 24)
-        self.level_text = self.font.render(f"lvl {level}", True, (255, 255, 255))
+        self.font = pygame.font.Font(None, 18)
         self.exp = exp
         self.level = level
         self.level_instance = level_instance
-    
+        self.health = self.base_health * self.level
+        self.damage = self.base_damage * self.level
+        
+
+    def draw_name(self, screen, offset):
+        camera_pos = pygame.Vector2(self.rect.topleft) - offset
+        if self.alive:
+            # rysowanie nazwy
+            name_text = f"{self.name}"
+            name_surf = self.font.render(name_text, True, (255, 255, 255))
+            name_rect = name_surf.get_rect(center=(camera_pos.x + self.rect.width // 2, camera_pos.y + 1))  # Adjust y-offset for the name
+
+            # rysowanie poziomu
+            level_text = f"lvl {self.level}"
+            level_surf = self.font.render(level_text, True, (255, 255, 255))
+            level_rect = level_surf.get_rect(center=(camera_pos.x + self.rect.width // 2, camera_pos.y + 15))  # Adjust y-offset for the level below the name
+
+            screen.blit(name_surf, name_rect)
+            screen.blit(level_surf, level_rect)
+
     def get_sprite(self, sheet, x, y, width, height, offset=0, scale=None, flip=False):
         image = pygame.Surface((width, height), pygame.SRCALPHA)
         image.blit(sheet, (0, 0), (x * width + offset, y * height, width, height))
@@ -36,20 +53,17 @@ class Enemy(pygame.sprite.Sprite):
             self.is_attacking = False
     
     def update_death_animation(self):
-        # Zwolnienie animacji śmierci poprzez użycie `self.animation_speed`
         if self.current_frame < len(self.current_animation) - 1:
             self.current_frame += 1
             self.image = self.current_animation[self.current_frame]
         else:
             self.kill()
 
-
     def get_distance_to_player(self):
         enemy_center = pygame.math.Vector2(self.hitbox.center)
         player_center = pygame.math.Vector2(self.player.hitbox.center)
         return enemy_center.distance_to(player_center)
     
-
     def move_towards_player(self):
         if self.player.alive:
             player_pos = pygame.math.Vector2(self.player.hitbox.center)
@@ -58,18 +72,9 @@ class Enemy(pygame.sprite.Sprite):
             if direction.length() != 0:
                 direction = direction.normalize()
             self.hitbox.center += direction * self.speed
-            self.rect.center = self.rect.center
+            self.rect.center = self.hitbox.center
             self.set_move_animation(direction)
-
     
-    def draw(self, screen, camera):
-        camera_pos = self.rect.move(camera.camera.topleft)
-        screen.blit(self.image, camera_pos.topleft)
-        if self.alive:
-            text_rect = self.level_text.get_rect(center=(camera_pos.centerx, camera_pos.top - 10))
-            screen.blit(self.level_text, text_rect)
-    
-
     def take_damage(self, amount):
         if self.alive:
             self.health -= amount
@@ -81,8 +86,6 @@ class Enemy(pygame.sprite.Sprite):
                 self.current_frame = 0
                 self.player.gain_exp(self.exp)
                 self.level_instance.add_to_respawn_list(self)
-                
-                
 
     def start_attack(self):
         self.set_attack_animation()
@@ -97,66 +100,56 @@ class Enemy(pygame.sprite.Sprite):
                     self.player.take_damage(self.attack_damage)
                     self.last_attack_time = now
 
-
+# Skeleton, Slime, and Nightborne classes inherit from Enemy
 class Skeleton(Enemy):
     def __init__(self, pos, groups, obstacle_sprites, visible_sprites, player, level, exp, level_instance):
+        self.name = "Skeleton"
+        self.base_health = 20
+        self.base_damage = 5
         super().__init__(pos, groups, obstacle_sprites, visible_sprites, player, level, exp, level_instance)
-        
         self.sprite_sheet = pygame.image.load("img/assets/skeleton.png").convert_alpha()
         self.image = self.get_sprite(self.sprite_sheet, 0, 0, skeleton_width, skeleton_height, scale=(80, 80))
-        
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
         self.hitbox = self.rect.inflate(-50, -50)
-
-        self.health = 100
-
-        self.speed = skeleton_speed / 300.0  # Prędkość w pikselach na milisekundę
-        self.follow_radius = 260  # Radius, w którym skeleton zaczyna śledzić gracza
-        self.attack_radius = 30  # Radius ataku
-        self.attack_damage = 10
-        self.attack_cooldown = 2000  # Czas w milisekundach
+        self.speed = skeleton_speed / 300.0
+        self.follow_radius = 260
+        self.attack_radius = 30
+        self.attack_damage = self.damage
+        self.attack_cooldown = 2000
         self.last_attack_time = 0
-
         self.animations = {
-                "stand": self.create_animation(self.sprite_sheet, 0, 6, skeleton_width, skeleton_height, scale=(80, 80)),
-                "death": self.create_animation(self.sprite_sheet, 12, 5, skeleton_width, skeleton_height, scale=(80, 80)),
-                "move_top": self.create_animation(self.sprite_sheet, 5, 6, skeleton_width, skeleton_height, scale=(80, 80)),
-                "move_bottom": self.create_animation(self.sprite_sheet, 3, 6, skeleton_width, skeleton_height, scale=(80, 80)),
-                "move_right": self.create_animation(self.sprite_sheet, 4, 6, skeleton_width, skeleton_height, scale=(80, 80)),
-                "move_left": self.create_animation(self.sprite_sheet, 4, 6, skeleton_width, skeleton_height, scale=(80, 80), flip=True),
-                "attack_right": self.create_animation(self.sprite_sheet, 7, 6, skeleton_width, skeleton_height, scale=(80, 80)),
-                "attack_left": self.create_animation(self.sprite_sheet, 7, 6, skeleton_width, skeleton_height, scale=(80, 80), flip=True),
-                "attack_down": self.create_animation(self.sprite_sheet, 6, 6, skeleton_width, skeleton_height, scale=(80, 80)),
-                "attack_up": self.create_animation(self.sprite_sheet, 8, 6, skeleton_width, skeleton_height, scale=(80, 80))
+            "stand": self.create_animation(self.sprite_sheet, 0, 6, skeleton_width, skeleton_height, scale=(80, 80)),
+            "death": self.create_animation(self.sprite_sheet, 12, 5, skeleton_width, skeleton_height, scale=(80, 80)),
+            "move_top": self.create_animation(self.sprite_sheet, 5, 6, skeleton_width, skeleton_height, scale=(80, 80)),
+            "move_bottom": self.create_animation(self.sprite_sheet, 3, 6, skeleton_width, skeleton_height, scale=(80, 80)),
+            "move_right": self.create_animation(self.sprite_sheet, 4, 6, skeleton_width, skeleton_height, scale=(80, 80)),
+            "move_left": self.create_animation(self.sprite_sheet, 4, 6, skeleton_width, skeleton_height, scale=(80, 80), flip=True),
+            "attack_right": self.create_animation(self.sprite_sheet, 7, 6, skeleton_width, skeleton_height, scale=(80, 80)),
+            "attack_left": self.create_animation(self.sprite_sheet, 7, 6, skeleton_width, skeleton_height, scale=(80, 80), flip=True),
+            "attack_down": self.create_animation(self.sprite_sheet, 6, 6, skeleton_width, skeleton_height, scale=(80, 80)),
+            "attack_up": self.create_animation(self.sprite_sheet, 8, 6, skeleton_width, skeleton_height, scale=(80, 80))
         }
-
         self.current_animation = self.animations["stand"]
         self.current_frame = 0
         self.last_update_time = pygame.time.get_ticks()
         self.is_attacking = False
-
-        self.animation_speed = 0.2  # Czas w sekundach między klatkami animacji
-
+        self.animation_speed = 0.2
 
     def update(self):
         now = pygame.time.get_ticks()
         elapsed_time = (now - self.last_update_time) / 1000.0
-
         if elapsed_time > self.animation_speed:
             self.last_update_time = now
             if self.alive:
                 self.update_animation()
             elif self.dying:
                 self.update_death_animation()
-
         self.rect.centerx = self.hitbox.centerx
-        self.rect.centery  = self.hitbox.centery - 15
-
+        self.rect.centery = self.hitbox.centery - 15
         if self.alive and not self.dying:
             if self.player.alive:
                 distance_to_player = self.get_distance_to_player()
-                
                 if distance_to_player < self.attack_radius:
                     if not self.is_attacking:
                         self.start_attack()
@@ -166,8 +159,6 @@ class Skeleton(Enemy):
                 else:
                     self.current_animation = self.animations["stand"]
                     self.is_attacking = False
-
-                # Sprawdzenie granic mapy
                 if self.rect.left < 0:
                     self.rect.left = 0
                 if self.rect.right > MAP_WIDTH:
@@ -176,11 +167,8 @@ class Skeleton(Enemy):
                     self.rect.top = 0
                 if self.rect.bottom > MAP_HEIGHT:
                     self.rect.bottom = MAP_HEIGHT
-                
-                
-            if not self.alive and self.current_animation == self.animations["death"]:
-                self.update_death_animation()
-
+        if not self.alive and self.current_animation == self.animations["death"]:
+            self.update_death_animation()
 
     def set_move_animation(self, direction):
         if abs(direction.y) > abs(direction.x):
@@ -208,45 +196,39 @@ class Skeleton(Enemy):
             else:
                 self.current_animation = self.animations["attack_up"]
 
-
-
 class Slime(Enemy):
     def __init__(self, pos, groups, obstacle_sprites, visible_sprites, player, level, exp, level_instance):
+        self.name = "Slime"
+        self.base_health = 20
+        self.base_damage = 5
         super().__init__(pos, groups, obstacle_sprites, visible_sprites, player, level, exp, level_instance)
-
         self.sprite_sheet = pygame.image.load("img/assets/slime.png").convert_alpha()
         self.image = self.get_sprite(self.sprite_sheet, 0, 0, slime_width, slime_height, scale=(64, 64))
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
         self.hitbox = self.rect.inflate(-40, -40)
         self.start_pos = pygame.math.Vector2(pos)
-
-        self.health = 50
-
-        self.speed = 1 # movement speed slime'a
+        self.speed = 1
         self.attack_radius = 260
-        self.attack_damage = 10
-        self.attack_cooldown = 1000  # milliseconds
+        self.attack_damage = self.damage
+        self.attack_cooldown = 1000
         self.last_attack_time = 0
-
         self.animations = {
             "stand": self.create_animation(self.sprite_sheet, 0, 4, slime_width, slime_height, scale=(64, 64)),
             "death": self.create_animation(self.sprite_sheet, 12, 5, slime_width, slime_height, scale=(64, 64)),
             "move": self.create_animation(self.sprite_sheet, 6, 7, slime_width, slime_height, scale=(64, 64))
         }
-
         self.animation_speed = slime_animation
         self.current_frame = 0
         self.current_animation = self.animations["stand"]
         self.last_update_time = pygame.time.get_ticks()
-    
+
     def set_move_animation(self, direction):
         self.current_animation = self.animations["move"]
 
     def update(self):
         now = pygame.time.get_ticks()
         elapsed_time = (now - self.last_update_time) / 1000.0
-
         if elapsed_time > self.animation_speed:
             self.last_update_time = now
             if not self.dying:
@@ -257,14 +239,10 @@ class Slime(Enemy):
                     self.current_frame += 1
                     self.image = self.current_animation[self.current_frame]
                 else:
-                    self.kill()  # usuwanie slime z mapy
-
-        # upodejtowanie pozycji hitboxu
+                    self.kill()
         self.rect.center = self.hitbox.center
-
         if self.alive and not self.dying:
             self.check_attack()
-
         if not self.alive:
             self.current_animation = self.animations["death"]
         elif self.get_distance_to_player() < self.attack_radius:
@@ -274,23 +252,23 @@ class Slime(Enemy):
 
 class Nightborne(Enemy):
     def __init__(self, pos, groups, obstacle_sprites, visible_sprites, player, level, exp, level_instance):
+        self.name = "Belzebub"
+        self.base_health = 20
+        self.base_damage = 5
         super().__init__(pos, groups, obstacle_sprites, visible_sprites, player, level, exp, level_instance)
-
+        print(self.base_damage)
+        print(self.base_health)
         self.sprite_sheet = pygame.image.load("img/assets/night.png").convert_alpha()
         self.image = self.get_sprite(self.sprite_sheet, 0, 0, nightborne_width, nightborne_height, scale=(140, 140))
-        
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
         self.hitbox = self.rect.inflate(-10, -10)
-
-        self.health = 300
-        self.speed = 3  # Hardcoded speed for testing
-        self.follow_radius = 300  # Radius where Nightborne starts following the player
-        self.attack_radius = 60  # Attack radius
-        self.attack_damage = 80
-        self.attack_cooldown = 1300 # Attack cooldown in milliseconds
+        self.speed = 3
+        self.follow_radius = 300
+        self.attack_radius = 60
+        self.attack_damage = self.damage
+        self.attack_cooldown = 1300
         self.last_attack_time = 0
-
         self.animations = {
             "stand": self.create_animation(self.sprite_sheet, 0, 9, nightborne_width, nightborne_height, scale=(140, 140)),
             "move_right": self.create_animation(self.sprite_sheet, 1, 6, nightborne_width, nightborne_height, scale=(140, 140)),
@@ -300,32 +278,26 @@ class Nightborne(Enemy):
             "attack": self.create_animation(self.sprite_sheet, 2, 12, nightborne_width, nightborne_height, scale=(140, 140)),
             "death": self.create_animation(self.sprite_sheet, 4, 22, nightborne_width, nightborne_height, scale=(140, 140))
         }
-
         self.current_animation = self.animations["stand"]
         self.current_frame = 0
         self.last_update_time = pygame.time.get_ticks()
         self.is_attacking = False
-
-        self.animation_speed = 0.08 # Time in seconds between animation frames
-        self.death_animation_speed = 0.5  # Slower speed for death animation
+        self.animation_speed = 0.08
+        self.death_animation_speed = 0.5
 
     def update(self):
         now = pygame.time.get_ticks()
         elapsed_time = (now - self.last_update_time) / 1000.0
-
         if elapsed_time > self.animation_speed:
             self.last_update_time = now
             if self.alive:
                 self.update_animation()
             elif self.dying:
                 self.update_death_animation()
-
         self.rect.centerx = self.hitbox.centerx
         self.rect.centery = self.hitbox.centery - 15
-
         if self.alive and not self.dying:
             distance_to_player = self.get_distance_to_player()
-            
             if distance_to_player < self.attack_radius:
                 if not self.is_attacking:
                     self.start_attack()
@@ -335,8 +307,6 @@ class Nightborne(Enemy):
             else:
                 self.current_animation = self.animations["stand"]
                 self.is_attacking = False
-
-            # Check map boundaries
             if self.rect.left < 0:
                 self.rect.left = 0
             if self.rect.right > MAP_WIDTH:
@@ -345,7 +315,6 @@ class Nightborne(Enemy):
                 self.rect.top = 0
             if self.rect.bottom > MAP_HEIGHT:
                 self.rect.bottom = MAP_HEIGHT
-
         if not self.alive and self.current_animation == self.animations["death"]:
             elapsed_time = (now - self.last_update_time) / 1000.0
             if elapsed_time > self.death_animation_speed:
