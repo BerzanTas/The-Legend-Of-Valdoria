@@ -5,6 +5,8 @@ from enemy import Skeleton, Slime,Nightborne
 from particles import AnimationPlayer
 
 class Player(pygame.sprite.Sprite):
+    """Klasa gracza"""
+
     username = None
     dead = False
     
@@ -14,8 +16,6 @@ class Player(pygame.sprite.Sprite):
         self.image = self.get_sprite(self.sprite_sheet, 0, 11, SPRITE_WIDTH, SPRITE_HEIGHT)  # Pierwsza klatka z 11 rzędu (idle)
         self.rect = self.image.get_rect(topleft=pos)
         self.hitbox = self.rect.inflate(-30,-20)
-
-        self.dead = False
 
         self.regen_time = 3000 #milisekund
         self.previous_time_regen = 0
@@ -39,8 +39,7 @@ class Player(pygame.sprite.Sprite):
         # countdown dla heal
         self.previous_time_heal = 0
         self.heal_cooldown = False
-
-        self.animation_player = AnimationPlayer()
+        self.animation_player = AnimationPlayer() # służy do efektów particle, zagra animację uleczenia
 
         # EFEKTY GŁOSOWE
 
@@ -93,50 +92,60 @@ class Player(pygame.sprite.Sprite):
         }
         self.idle_frame = self.idle_frames["right"]
 
-        # staty
+        # pcozątkowe staty gracza
         self.stats = {'health':100, 'mana':90, 'magic':1, 'speed':1, 'health_regen':5, 'mana_regen':5}
-        self.max_stats = {'health':500, 'mana':300, 'magic':10, 'speed':10, 'health_regen':20, 'mana_regen':20}
+        # maksymalne staty jakie może mieć gracz
+        self.max_stats = {'health':500, 'mana':300, 'magic':10, 'speed':5, 'health_regen':20, 'mana_regen':20}
+        # wartość jednego ulepszania
         self.upgrade_value = {'health':50, 'mana':30, 'magic':1, 'speed':1, 'health_regen':2, 'mana_regen': 2}
-        self.health = self.stats['health'] * 0.5
-        self.mana = self.stats['mana'] * 0.8
+
+        self.health = self.stats['health']
+        self.mana = self.stats['mana']
+        self.speed = self.stats['speed']
+        self.ability_points = 5
+
         self.exp = 0
         self.level = 1
         self.next_level_exp = 80
-        self.ability_points = 5
-        self.speed = self.stats['speed']
 
-
-        #komunikaty o xp
+        # komunikaty o xp
         self.xp_texts = []
 
     def get_sprite(self, sheet, x, y, width, height, offset = 0):
+        """Dzieli sprite z kilkoma rysunkami w jednym pliku
+            na pojedyncze kawałki i zwraca jeden rysunek"""
         image = pygame.Surface((width, height), pygame.SRCALPHA)
         image.blit(sheet, (0, 0), (x * width + offset, y * height, width, height))
         return image
 
     def create_animation(self, sheet, row, num_frames, width, heigth):
+        """Tworzy i zwraca listę pojedynczych obrazów z sprite, za pomocą funkcji get_sprite()"""
         return [self.get_sprite(sheet, i, row, width, heigth) for i in range(num_frames)]
+    
+    def create_attack_animation(self, row, num_frames, width = 64, heigth = 64):
+        # Wczytujemy co czwartą klatkę, zaczynając od pierwszej klatki
+        return [self.get_sprite(self.sprite_sheet, 3 * i, row, width = width, height = heigth, offset=64) for i in range(num_frames)]
 
+    # funkcja wywołana, zwiększa exp gracza w zależności od zabitego enemy
     def gain_exp(self, amount):
         self.exp += amount
         self.xp_texts.append({'amount': amount, 'timer': pygame.time.get_ticks()})
-        if self.exp >= self.next_level_exp:
+        while self.exp >= self.next_level_exp:
             self.level_up()
     
+    # zwiększamy poziom, zwiększamy próg potrzebnt do kolejnego levela
+    # zwiększamy ability points
     def level_up(self):
         self.level += 1
         self.exp -= self.next_level_exp
         self.next_level_exp = int(self.next_level_exp * 1.5)
         self.ability_points += 1
     
+    # ta funkcja służy do ulepszania umiejętności gracza [self.stats]
     def upgrade(self, skill):
         self.stats[skill] += self.upgrade_value[skill]
         self.ability_points -= 1
         print(skill, self.stats[skill])
-    
-    def create_attack_animation(self, row, num_frames, width = 64, heigth = 64):
-        # Wczytujemy co czwartą klatkę, zaczynając od pierwszej klatki
-        return [self.get_sprite(self.sprite_sheet, 3 * i, row, width = width, height = heigth, offset=64) for i in range(num_frames)]
 
     # Zwraca liczbę sekund które pozostały do ponownego użycia zaklęcia
     def get_cooldown_time(self, spell) -> str:
@@ -146,6 +155,8 @@ class Player(pygame.sprite.Sprite):
 
         return str(seconds)
     
+    # funkcja odpowiada za otrzymywanie obrażeń od przeciwników
+    # i jeżeli życie spadnie poniżej 0 ogłasza śmierć gracza
     def take_damage(self, amount):
         if not Player.dead:
             self.sound_player("damage")
@@ -156,11 +167,8 @@ class Player(pygame.sprite.Sprite):
                 Player.dead = True
                 self.alive = False
                 self.current_frame = 0
-                
-
-        print(f"Player health: {self.health}")
-        print(Player.dead)
     
+    # tutaj obsługujemy efekty głosowe
     def sound_player(self, sound_type):
         if sound_type == "footsteps" and not self.footstep_channel.get_busy():
             self.footstep_channel.play(self.footsteps_sound)
@@ -178,7 +186,7 @@ class Player(pygame.sprite.Sprite):
         else:
             return False
     
-    # regeneruj życie i mana co x sekund
+    # regeneruj życie i manę co self.regen sekund
     def regeneration(self):
         if self.health < self.stats["health"]:
             self.health += self.stats["health_regen"]
@@ -191,12 +199,12 @@ class Player(pygame.sprite.Sprite):
 
 
     def update(self):
-
-        if self.dead:
+        if Player.dead:
             self.current_animation = self.animations["death"]
             if self.current_frame >= len(self.current_animation) - 1:
                 self.kill()
         else:
+            # obsługo cooldownów
             self.current_time = pygame.time.get_ticks()
             self.fireball_cooldown = False if self.previous_time_fireball == 0 or self.current_time - self.previous_time_fireball >= spell_data['fireball']['cooldown'] else True
             self.laserbeam_cooldown = False if self.previous_time_laserbeam == 0 or self.current_time - self.previous_time_laserbeam >= spell_data["laserbeam"]["cooldown"]  else True
@@ -225,6 +233,7 @@ class Player(pygame.sprite.Sprite):
                     self.direction.x = 1
                     self.idle_frame = self.idle_frames["right"]
 
+                # jeżeli gracz przyciśnie przycisk SPACE to aktywujemy skill "Fireball"
                 elif keys[pygame.K_SPACE]:
                     if not self.fireball_cooldown and self.mana_handler("fireball"):
                         self.is_attacking = True
@@ -243,7 +252,7 @@ class Player(pygame.sprite.Sprite):
 
                         self.previous_time_fireball = self.current_time
                     
-
+                # jeżeli gracz przyciśnie przycisk Q to aktywujemy skill "Laserbeam"
                 elif keys[pygame.K_q]:
                     if not self.laserbeam_cooldown:
                         if self.mana_handler("laserbeam"):
@@ -263,6 +272,7 @@ class Player(pygame.sprite.Sprite):
 
                             self.previous_time_laserbeam = self.current_time
 
+                # jeżeli gracz przyciśnie przycisk E to aktywujemy skill "Heal"
                 elif keys[pygame.K_e]:
                     if not self.heal_cooldown:
                         if self.mana_handler("heal"):
@@ -276,21 +286,19 @@ class Player(pygame.sprite.Sprite):
                             elif self.idle_frame == self.idle_frames["right"]:
                                 self.current_animation = self.animations["heal_right"]
                             
-                            # przywróć 20% życia
+                            # przywróć "heal_percent" życia
                             self.health += self.stats["health"] * spell_data["heal"]["heal_percent"]
                             if self.health > self.stats["health"]:
                                 self.health = self.stats["health"]
                             self.animation_player.create_healing_particles(self.hitbox.center, self.visible_sprites)
                             self.previous_time_heal = self.current_time
 
-                
             else:
                 if self.current_frame >= len(self.current_animation) - 1:
                     self.is_attacking = False
                     self.is_healing = False
                     self.current_frame = 0
 
-                
             if self.current_time - self.previous_time_regen >= self.regen_time:
                 self.previous_time_regen = self.current_time
                 self.regeneration()
@@ -313,8 +321,6 @@ class Player(pygame.sprite.Sprite):
         if self.hitbox.bottom > MAP_HEIGHT:
             self.hitbox.bottom = MAP_HEIGHT
 
-
-
         # Aktualizacja ramki animacji
         if self.current_animation:
             speed = ATTACK_ANIMATION_SPEED if self.is_attacking else ANIMATION_SPEED
@@ -325,6 +331,7 @@ class Player(pygame.sprite.Sprite):
         
         self.update_xp_texts()
 
+    # obsługa ruchu gracza
     def move(self, speed):
         if self.direction.magnitude() != 0:
             self.direction = self.direction.normalize()
@@ -336,7 +343,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.centerx = self.hitbox.centerx
         self.rect.centery = self.hitbox.centery-10
 
-
+    # obsługo kolizji
     def collision(self, direction):
             for sprite in self.obstacle_sprites:
                 if sprite.hitbox.colliderect(self.hitbox):
@@ -362,7 +369,6 @@ class Player(pygame.sprite.Sprite):
                                     self.hitbox.bottom = sprite.hitbox.top
                                 if self.direction.y < 0:
                                     self.hitbox.top = sprite.hitbox.bottom
-
 
     ########## odnośnie lvl ############
     def update_xp_texts(self):

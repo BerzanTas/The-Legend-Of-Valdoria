@@ -14,6 +14,7 @@ class Level:
 
         self.grass_image = pygame.image.load("img/assets/grass.png").convert_alpha()
         self.grass_image = pygame.transform.scale(self.grass_image, (TILESIZE,TILESIZE))
+
         # Grupy sprite'ów (dodanie warstwowania)
         self.visible_sprites = YSortCameraGroup()
         self.obstacle_sprites = pygame.sprite.Group()
@@ -30,6 +31,7 @@ class Level:
         #lista obiektów do respawnu
         self.respawn_list = []
 
+    # funkcja która tworzy mapę w oparciu o listę znajdującą się w module settings.py
     def create_map(self):
         for row_index, row in enumerate(WORLD_MAP):
             for col_index, col in enumerate(row):
@@ -68,6 +70,7 @@ class Level:
                     self.night = Nightborne((x, y), (self.visible_sprites, self.obstacle_sprites), self.obstacle_sprites, self.visible_sprites, self.player, 50, 500, level_instance=self)
                 elif col == "bld":  #woda
                     bloodtower((x, y), (self.visible_sprites, self.obstacle_sprites))
+
     def draw_background(self):
         for row in range(0, MAP_HEIGHT, TILESIZE):
             for col in range(0, MAP_WIDTH, TILESIZE):
@@ -83,6 +86,7 @@ class Level:
 
         #aktualizacja respawnu
         self.update_respawn()
+        
     def update_respawn(self):
         current_time = pygame.time.get_ticks()
         for respawn_info in self.respawn_list[:]:
@@ -105,6 +109,8 @@ class Level:
         self.respawn_list.append(respawn_info)
     
 class YSortCameraGroup(pygame.sprite.Group):
+    """Klasa odpowiedzialna za kamerę oraz przemieszczania elementów względem kamery"""
+
     def __init__(self):
         super().__init__()
 
@@ -126,16 +132,16 @@ class YSortCameraGroup(pygame.sprite.Group):
         self.offset.x = max(0, min(self.offset.x, MAP_WIDTH - self.display_surface.get_width()))
         self.offset.y = max(0, min(self.offset.y, MAP_HEIGHT - self.display_surface.get_height()))
 
-        # Separate decor and non-decor sprites
+        # rozdzielamy decor sprites i nondecor sprites
         decor_sprites = [sprite for sprite in self.sprites() if getattr(sprite, 'is_decor', False)]
         non_decor_sprites = [sprite for sprite in self.sprites() if not getattr(sprite, 'is_decor', False)]
 
-        # Draw decor elements first
+        # najpierw rysujemy elementy decor
         for sprite in sorted(decor_sprites, key=lambda sprite: sprite.rect.centery):
             offset_pos = sprite.rect.topleft - self.offset
             self.display_surface.blit(sprite.image, offset_pos)
 
-        # Draw other sprites
+        # rysujemy resztę elementów
         for sprite in sorted(non_decor_sprites, key=lambda sprite: sprite.rect.centery):
             offset_pos = sprite.rect.topleft - self.offset
             self.display_surface.blit(sprite.image, offset_pos)
@@ -158,19 +164,10 @@ class YSortCameraGroup(pygame.sprite.Group):
     
     def show_username(self, username, player):
         username_surf = self.user_font.render(username, False, TEXT_COLOR)
-        #username_rect = username_surf.get_rect(center=player_rect.center)
-        #username_rect.move_ip(0,-55)
-
-        #self.display_surface.blit(username_surf, username_rect)
         offset_pos = pygame.Vector2(player.rect.centerx - username_surf.get_width() // 2, player.rect.top - 20) - self.offset
         self.display_surface.blit(username_surf, offset_pos)
     
     def show_level(self,player):
         level_surf = self.user_font.render(f"lvl {player.level}", False, TEXT_COLOR)
-        #level_rect = level_surface.get_rect(center=player_rect.center)
-        #level_rect.move_ip(0,-38)
-
-        #self.display_surface.blit(level_surface, level_rect)
-
         offset_pos = pygame.Vector2(player.rect.centerx - level_surf.get_width() // 2, player.rect.top - 5) - self.offset
         self.display_surface.blit(level_surf, offset_pos)

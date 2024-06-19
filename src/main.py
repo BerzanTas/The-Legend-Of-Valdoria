@@ -13,7 +13,7 @@ class Game:
         self.level = Level()
         self.start_menu = StartMenu()
         self.end_menu = EndMenu()
-        # changing the title of the window
+        # zmiana tytułu okna
         pygame.display.set_caption("The Legend of Valdoria")
         self.vid = Video("Intro/Valdoria Intro.mp4")
         self.vid.set_size((WIDTH, HEIGTH))
@@ -22,6 +22,8 @@ class Game:
         for i in range(2,6):
             pygame.mixer.music.queue(f"sounds/music/valdoria{i}.mp3")
         print("Game initialized with level:", type(self.level))
+    
+    # zaczynamy grę od filmiku intro który zbliży nas do losów Valdorii
     def intro(self):
         while self.vid.active:
             self.vid.draw(self.screen, (0,0), False)
@@ -38,6 +40,7 @@ class Game:
         
         self.start()
     
+    # funkcja wywołuje menu startowe oraz inicjuje start gry
     def start(self):
         pygame.mixer.music.set_volume(0.1)
         pygame.mixer.music.play()
@@ -78,7 +81,7 @@ class Game:
         
         self.end()
             
-    
+    # funckja odpowiedzialna za obsługę menu końcowego
     def end(self):
         
         while True:
@@ -90,12 +93,6 @@ class Game:
                 
             end = self.end_menu.display(events)
             pygame.display.update()
-
-            if end:
-                break
-        Player.dead = False
-        self.start()
-                
 
 
 if __name__ == "__main__":

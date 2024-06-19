@@ -68,6 +68,7 @@ class Water(pygame.sprite.Sprite):
             self.last_update = now
             self.current_frame = (self.current_frame + 1) % len(self.frames)
             self.image = self.frames[self.current_frame]
+            
 ###########blood tower######################
 class bloodtower(pygame.sprite.Sprite):
     def __init__(self, pos, groups):

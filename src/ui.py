@@ -5,6 +5,11 @@ from projectile import *
 import sys
 
 class UI:
+    """
+    Klasa odpowiedzialna za rysowanie elementów UI w tym health i mana bar, exp bar,
+    umiejętności, skille i więcej.
+    """
+
     def __init__(self) -> None:
         
         self.display_surface = pygame.display.get_surface()
@@ -14,7 +19,7 @@ class UI:
         self.spell_font = pygame.font.Font(SPELL_FONT, 20)
         self.cooldown_font = pygame.font.FontType(UI_FONT, 28)
 
-        # bar
+        # tworzymy prostokąty które będziemy podawać do metod rysujących
         self.health_bar_rect = pygame.Rect(10, 10, HEALTH_BAR_WIDTH, BAR_HEIGHT)
         self.mana_bar_rect = pygame.Rect(10, 34, MANA_BAR_WIDTH, BAR_HEIGHT)
         self.experience_rect = pygame.Rect(1060, 10, HEALTH_BAR_WIDTH, BAR_HEIGHT)
@@ -24,12 +29,14 @@ class UI:
         self.mouse_was_pressed = False
 
         self.spell_img = []
+
         for spell in spell_data.values():
             path = spell['img']
             spell = pygame.image.load(path).convert_alpha()
             spell = pygame.transform.scale(spell, (64,64))
             self.spell_img.append(spell)
 
+    # metoda odpowiedzialna za rysowanie health oraz mana bar
     def show_bar(self, current, max_amount, bg_rect, color):
         # rysowanie tła
         pygame.draw.rect(self.display_surface, UI_BG_COLOR, bg_rect)
@@ -49,7 +56,7 @@ class UI:
 
         self.display_surface.blit(text_surf, text_rect)
 
-
+    # metoda odpowiedzialna za rysowanie exp bar
     def show_exp(self, exp, max_exp, bg_rect, color):
         pygame.draw.rect(self.display_surface, UI_BG_COLOR, bg_rect)
 
@@ -68,6 +75,7 @@ class UI:
 
         self.display_surface.blit(text_surf, text_rect)
 
+    # metoda odpowiedzialna za rysowanie spell boxów, cooldown, mana_cost itd.
     def spell_box(self, left, top, spell_img, cooldown, button, mana_cost, time = None):
         bg_rect = pygame.Rect(left, top, SPELL_BOX_SIZE, SPELL_BOX_SIZE)
 
@@ -98,7 +106,7 @@ class UI:
         spell_img.blit(button_key, (5, 0))
         spell_img.blit(mana_cost, mana_cost_rect)
 
-    
+    # metoda odpowiedzialna za rysowanie umiejętności gracza
     def stat_box(self, left, top, stat_name, path):
         bg_rect = pygame.Rect(left, top, STAT_BOX_SIZE, STAT_BOX_SIZE)
         stat_img = pygame.image.load(path)
@@ -109,6 +117,7 @@ class UI:
 
         self.display_surface.blit(stat_img, stat_rect)
     
+    # metoda rysuje obraz ulepszania, oraz umożliwia ulepszenie umiejętności
     def upgrade_box(self, pos, skill, player):
         path = "img/staticons/statup.png"
         image = pygame.image.load(path).convert_alpha()
@@ -142,6 +151,9 @@ class UI:
         self.stat_box(self.stat_box_x + 5*STAT_BOX_SIZE + 25, 660, "Speed", "img/staticons/speedicon.png")
 
         self.mouse_clicked = pygame.mouse.get_pressed()[0]
+        # sprawdzamy czy mamy ability points, jeżeli tak
+        # to sprawdzmy czy dana umiejętność nie osiągnał maks. poziomu
+        # jeżeli nie, to rysujemy nad nim upgrade_box()
         if player.ability_points > 0:
             if player.stats['health'] < player.max_stats['health']:
                 self.upgrade_box((self.stat_box_x + 6, 625), 'health', player)
@@ -188,6 +200,7 @@ class Menu:
         return bg_rect
 
 class StartMenu(Menu):
+    """Klasa odpowiedzialna za rysowanie menu startowego oraz za pobieranie user input."""
     def __init__(self) -> None:
         super().__init__()
         self.color_inactive = pygame.Color('gray')
@@ -200,7 +213,6 @@ class StartMenu(Menu):
         self.username_input = pygame.Rect(self.x, self.y, self.box_width, self.box_height)
 
     def get_input(self, input_box, events):
-
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if input_box.collidepoint(event.pos):
@@ -253,6 +265,7 @@ class StartMenu(Menu):
 
 
 class EndMenu(Menu):
+    """Klasa odpowiedzialna za rysowanie menu końcowego."""
     def __init__(self) -> None:
         super().__init__()
 

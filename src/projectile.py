@@ -3,7 +3,6 @@ import pygame
 from time import sleep
 
 class Fireball(pygame.sprite.Sprite):
-
     def __init__(self, pos, groups, facing, hit_sprites, magic_power, radius=FIREBALL_RADIUS) -> None:
         super().__init__(groups)
         self.sprite_sheet = pygame.image.load("img/spells/fireball.png").convert_alpha()
@@ -12,7 +11,6 @@ class Fireball(pygame.sprite.Sprite):
         self.hitbox = self.rect.inflate(-25,-25)
         self.start_x = self.hitbox.x
         self.start_y = self.hitbox.y
-
 
         self.radius = radius
         self.facing = facing
@@ -41,7 +39,8 @@ class Fireball(pygame.sprite.Sprite):
         self.explosion_sound.set_volume(0.3)
         self.explosion_sound.fadeout(2)
 
-
+        # tutaj zmieniamy rotację obrazu fireball w zależności od kierunku w którym został wystrzelony
+        # oraz przesuwamy go tak, żeby był spójny wraz z animacją gracza
         if self.facing == "up":
             self.hitbox.move_ip(-15,-15)
             self.direction = "vertical"
@@ -68,12 +67,13 @@ class Fireball(pygame.sprite.Sprite):
             self.direction = "horizontal"
             self.vel = FIREBALL_SPEED * 1
 
-    
+    # wycinamy jeden obraz z sprite
     def get_sprite(self, sheet, x, y, width, height, offset = 0):
         image = pygame.Surface((width, height), pygame.SRCALPHA)
         image.blit(sheet, (0, 0), (x * width + offset, y * height, width, height))
         return image
     
+    # wykrywamy kolizję, i jeżeli przeszkoda ma moduł take_damage() to zabieramy mu życie
     def collision(self):
         for sprite in self.hit_sprites:
             if sprite.hitbox.colliderect(self.hitbox):
@@ -87,13 +87,13 @@ class Fireball(pygame.sprite.Sprite):
                 if hasattr(sprite, 'take_damage'):
                     sprite.take_damage(spell_data['fireball']['damage']*self.magic_power)
 
+    # efekt głosowy
     def play_sound(self, sound):
         sound.play()
 
     def update(self):
         self.current_x = self.hitbox.x
         self.current_y = self.hitbox.y
-        
 
         if not self.collide:
             if self.direction == "vertical":
@@ -109,7 +109,6 @@ class Fireball(pygame.sprite.Sprite):
                 self.hitbox.x += self.vel
                 self.rect.centerx = self.hitbox.centerx
                 self.rect.centery = self.hitbox.centery-5
-
 
             self.animation_timer += self.animation_speed
             if self.animation_timer >= 1:
@@ -128,6 +127,7 @@ class Fireball(pygame.sprite.Sprite):
             if self.image_index >= len(self.explode_animation) - 1:
                 self.kill()
 
+        # nisczymy pocisk jeżeli osiągnał swój radius
         if abs(self.start_x - self.current_x) > self.radius or abs(self.start_y - self.current_y) > self.radius:
             self.kill()
 
@@ -158,6 +158,8 @@ class Laserbeam(pygame.sprite.Sprite):
         
         self.laserbeam_channel.play(self.laserbeam_sound)
 
+        # zmieniamy rotację obrazu Laserbeam, w zależności od tego w którą
+        # stronę został wystrzelony
         if self.facing == "up":
             self.image = pygame.transform.rotate(self.image, 90)
             self.rect = self.image.get_rect(topleft=pos)
@@ -177,13 +179,12 @@ class Laserbeam(pygame.sprite.Sprite):
             self.rect.move_ip(-260, -20)
             self.hitbox = self.rect.inflate(-10,-40)
 
-        
-
     def get_sprite(self, sheet, x, y, width, height, offset = 0):
         image = pygame.Surface((width, height), pygame.SRCALPHA)
         image.blit(sheet, (0, 0), (x * width, y * height, width, height))
         return image
     
+    # wykrywamy kolizję i zabieramy życie jeżeli trafiliśmy przeciwnika
     def collision(self):
         for sprite in self.hit_sprites:
             if sprite.hitbox.colliderect(self.hitbox):
@@ -193,7 +194,6 @@ class Laserbeam(pygame.sprite.Sprite):
                 if hasattr(sprite, 'take_damage'):
                     sprite.take_damage(spell_data['laserbeam']['damage']*self.magic_power)
 
-    
     def update(self):
         self.animation_timer += self.animation_speed
         if self.animation_timer >= 1:
