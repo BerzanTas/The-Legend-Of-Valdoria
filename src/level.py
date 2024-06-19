@@ -4,7 +4,7 @@ from tile import Tile
 from player import Player
 from projectile import Fireball
 from ui import UI
-from enemy import Skeleton, Slime, Nightborne
+from enemy import Skeleton, Slime, Nightborne, Enemy
 from elements import *
 
 class Level:
@@ -47,7 +47,7 @@ class Level:
                 elif col == 's':
                     self.slime = Slime((x, y), (self.visible_sprites, self.obstacle_sprites), self.obstacle_sprites, self.visible_sprites, self.player, 1, exp=50, level_instance=self)
                 elif col == 'sk':
-                    self.slime = Skeleton((x, y), (self.visible_sprites, self.obstacle_sprites), self.obstacle_sprites, self.visible_sprites, self.player, 2, exp=150, level_instance=self)
+                    self.slime = Skeleton((x, y), (self.visible_sprites, self.obstacle_sprites), self.obstacle_sprites, self.visible_sprites, self.player, 3, exp=150, level_instance=self)
                 elif col == "tr1": #drzewo 1
                     Tile((x, y), (self.visible_sprites, self.obstacle_sprites), 'tree1', layer=2)
                 elif col == "portal":  # portal
@@ -65,7 +65,7 @@ class Level:
                 elif col == "hd":
                     Tile((x,y), (self.visible_sprites, self.obstacle_sprites), 'head', layer=2)
                 elif col == "borne":
-                    self.night = Nightborne((x, y), (self.visible_sprites, self.obstacle_sprites), self.obstacle_sprites, self.visible_sprites, self.player, 2, 100, level_instance=self)
+                    self.night = Nightborne((x, y), (self.visible_sprites, self.obstacle_sprites), self.obstacle_sprites, self.visible_sprites, self.player, 50, 500, level_instance=self)
                 elif col == "bld":  #woda
                     bloodtower((x, y), (self.visible_sprites, self.obstacle_sprites))
     def draw_background(self):
@@ -139,6 +139,8 @@ class YSortCameraGroup(pygame.sprite.Group):
         for sprite in sorted(non_decor_sprites, key=lambda sprite: sprite.rect.centery):
             offset_pos = sprite.rect.topleft - self.offset
             self.display_surface.blit(sprite.image, offset_pos)
+            if isinstance(sprite, Enemy):
+                sprite.draw_name(self.display_surface, self.offset)
 
         # Rysowanie gracza
         self.display_surface.blit(player.image, player.rect.topleft - self.offset)

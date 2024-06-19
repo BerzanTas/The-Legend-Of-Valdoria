@@ -15,6 +15,8 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft=pos)
         self.hitbox = self.rect.inflate(-30,-20)
 
+        self.dead = False
+
         self.regen_time = 3000 #milisekund
         self.previous_time_regen = 0
 
@@ -152,6 +154,7 @@ class Player(pygame.sprite.Sprite):
                 self.sound_player("death")
                 self.health = 0
                 Player.dead = True
+                self.alive = False
                 self.current_frame = 0
                 
 

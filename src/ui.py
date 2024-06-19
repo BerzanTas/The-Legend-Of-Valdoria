@@ -248,7 +248,7 @@ class StartMenu(Menu):
                     return True
                 elif quit_button.collidepoint(event.pos):
                     sys.exit()
-        
+    
 
 
 
