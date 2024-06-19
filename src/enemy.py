@@ -18,6 +18,7 @@ class Enemy(pygame.sprite.Sprite):
         
 
     def draw_name(self, screen, offset):
+        # Rysowanie imienia i poziomu przeciwnika na ekranie
         camera_pos = pygame.Vector2(self.rect.topleft) - offset
         if self.alive:
             # rysowanie nazwy
@@ -34,6 +35,7 @@ class Enemy(pygame.sprite.Sprite):
             screen.blit(level_surf, level_rect)
 
     def get_sprite(self, sheet, x, y, width, height, offset=0, scale=None, flip=False):
+        # Wycinanie pojedynczego sprite'a z arkusza sprite'ów
         image = pygame.Surface((width, height), pygame.SRCALPHA)
         image.blit(sheet, (0, 0), (x * width + offset, y * height, width, height))
         if scale:
@@ -43,9 +45,11 @@ class Enemy(pygame.sprite.Sprite):
         return image
     
     def create_animation(self, sheet, row, num_frames, width, height, scale=None, flip=False):
+        # Tworzenie animacji z szeregu klatek w arkuszu sprite'ów
         return [self.get_sprite(sheet, i, row, width, height, scale=scale, flip=flip) for i in range(num_frames)]
 
     def update_animation(self):
+        # Aktualizacja klatki animacji
         self.current_frame = (self.current_frame + 1) % len(self.current_animation)
         self.image = self.current_animation[self.current_frame]
 
@@ -53,6 +57,7 @@ class Enemy(pygame.sprite.Sprite):
             self.is_attacking = False
     
     def update_death_animation(self):
+        # Aktualizacja animacji śmierci
         if self.current_frame < len(self.current_animation) - 1:
             self.current_frame += 1
             self.image = self.current_animation[self.current_frame]
@@ -60,11 +65,13 @@ class Enemy(pygame.sprite.Sprite):
             self.kill()
 
     def get_distance_to_player(self):
+        # Obliczanie dystansu do gracza
         enemy_center = pygame.math.Vector2(self.hitbox.center)
         player_center = pygame.math.Vector2(self.player.hitbox.center)
         return enemy_center.distance_to(player_center)
     
     def move_towards_player(self):
+         # Ruch w kierunku gracza
         if self.player.alive:
             player_pos = pygame.math.Vector2(self.player.hitbox.center)
             enemy_pos = pygame.math.Vector2(self.hitbox.center)
@@ -76,6 +83,7 @@ class Enemy(pygame.sprite.Sprite):
             self.set_move_animation(direction)
     
     def take_damage(self, amount):
+        # Odejmowanie zdrowia po otrzymaniu obrażeń
         if self.alive:
             self.health -= amount
             if self.health <= 0:
@@ -88,11 +96,13 @@ class Enemy(pygame.sprite.Sprite):
                 self.level_instance.add_to_respawn_list(self)
 
     def start_attack(self):
+        # Rozpoczęcie ataku
         self.set_attack_animation()
         self.is_attacking = True
         self.current_frame = 0
 
     def check_attack(self):
+        # Sprawdzanie, czy atak się powiódł
         if self.player.alive:
             if self.hitbox.colliderect(self.player.hitbox):
                 now = pygame.time.get_ticks()
@@ -100,9 +110,9 @@ class Enemy(pygame.sprite.Sprite):
                     self.player.take_damage(self.attack_damage)
                     self.last_attack_time = now
 
-# Skeleton, Slime, and Nightborne classes inherit from Enemy
 class Skeleton(Enemy):
     def __init__(self, pos, groups, obstacle_sprites, visible_sprites, player, level, exp, level_instance):
+        # Konstruktor klasy Skeleton, dziedziczący po klasie Enemy
         self.name = "Skeleton"
         self.base_health = 20
         self.base_damage = 5
@@ -137,6 +147,7 @@ class Skeleton(Enemy):
         self.animation_speed = 0.2
 
     def update(self):
+        # Aktualizacja stanu szkieleta w każdej klatce gry
         now = pygame.time.get_ticks()
         elapsed_time = (now - self.last_update_time) / 1000.0
         if elapsed_time > self.animation_speed:
@@ -171,6 +182,7 @@ class Skeleton(Enemy):
             self.update_death_animation()
 
     def set_move_animation(self, direction):
+        # Ustawianie animacji ruchu w zależności od kierunku
         if abs(direction.y) > abs(direction.x):
             if direction.y < 0:
                 self.current_animation = self.animations["move_top"]
@@ -183,6 +195,7 @@ class Skeleton(Enemy):
                 self.current_animation = self.animations["move_right"]
 
     def set_attack_animation(self):
+        # Ustawianie animacji ataku w zależności od pozycji gracza
         dx = self.player.rect.centerx - self.rect.centerx
         dy = self.player.rect.centery - self.rect.centery
         if abs(dx) > abs(dy):
@@ -197,6 +210,7 @@ class Skeleton(Enemy):
                 self.current_animation = self.animations["attack_up"]
 
 class Slime(Enemy):
+    # Konstruktor klasy Slime, dziedziczący po klasie Enemy
     def __init__(self, pos, groups, obstacle_sprites, visible_sprites, player, level, exp, level_instance):
         self.name = "Slime"
         self.base_health = 20
@@ -224,9 +238,11 @@ class Slime(Enemy):
         self.last_update_time = pygame.time.get_ticks()
 
     def set_move_animation(self, direction):
+        # Ustawianie animacji ruchu slime'a
         self.current_animation = self.animations["move"]
 
     def update(self):
+        # Aktualizacja stanu slime'a w każdej klatce gry
         now = pygame.time.get_ticks()
         elapsed_time = (now - self.last_update_time) / 1000.0
         if elapsed_time > self.animation_speed:
@@ -251,6 +267,7 @@ class Slime(Enemy):
             self.current_animation = self.animations["stand"]
 
 class Nightborne(Enemy):
+    # Konstruktor klasy Nightborne(Belzebub), dziedziczący po klasie Enemy
     def __init__(self, pos, groups, obstacle_sprites, visible_sprites, player, level, exp, level_instance):
         self.name = "Belzebub"
         self.base_health = 20
@@ -286,6 +303,7 @@ class Nightborne(Enemy):
         self.death_animation_speed = 0.5
 
     def update(self):
+        # Aktualizacja stanu Nightborne'a w każdej klatce gry
         now = pygame.time.get_ticks()
         elapsed_time = (now - self.last_update_time) / 1000.0
         if elapsed_time > self.animation_speed:
@@ -321,6 +339,7 @@ class Nightborne(Enemy):
                 self.update_death_animation()
 
     def set_move_animation(self, direction):
+        # Ustawianie animacji ruchu w zależności od kierunku
         if abs(direction.y) > abs(direction.x):
             if direction.y < 0:
                 self.current_animation = self.animations["move_top"]
@@ -333,6 +352,7 @@ class Nightborne(Enemy):
                 self.current_animation = self.animations["move_right"]
 
     def set_attack_animation(self):
+        # Ustawianie animacji ataku
         self.current_animation = self.animations["attack"]
         self.current_frame = 0
         self.is_attacking = True
