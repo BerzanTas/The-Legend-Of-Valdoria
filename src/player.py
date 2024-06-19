@@ -6,6 +6,7 @@ from particles import AnimationPlayer
 
 class Player(pygame.sprite.Sprite):
     username = None
+    dead = False
     
     def __init__(self, pos, groups, obstacle_sprites, fireball_sprites, visible_sprites):
         super().__init__(groups)
@@ -13,8 +14,6 @@ class Player(pygame.sprite.Sprite):
         self.image = self.get_sprite(self.sprite_sheet, 0, 11, SPRITE_WIDTH, SPRITE_HEIGHT)  # Pierwsza klatka z 11 rzędu (idle)
         self.rect = self.image.get_rect(topleft=pos)
         self.hitbox = self.rect.inflate(-30,-20)
-
-        self.dead = False
 
         self.regen_time = 3000 #milisekund
         self.previous_time_regen = 0
@@ -146,18 +145,18 @@ class Player(pygame.sprite.Sprite):
         return str(seconds)
     
     def take_damage(self, amount):
-        if not self.dead:
+        if not Player.dead:
             self.sound_player("damage")
             self.health -= amount
             if self.health <= 0:
                 self.sound_player("death")
                 self.health = 0
-                self.dead = True
+                Player.dead = True
                 self.current_frame = 0
                 
 
         print(f"Player health: {self.health}")
-        print(self.dead)
+        print(Player.dead)
     
     def sound_player(self, sound_type):
         if sound_type == "footsteps" and not self.footstep_channel.get_busy():

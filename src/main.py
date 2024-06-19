@@ -2,7 +2,7 @@ import pygame, sys
 from level import Level               
 from settings import *
 from pyvidplayer import Video
-from ui import StartMenu, End
+from ui import StartMenu, EndMenu
 from player import Player
 
 class Game:
@@ -12,7 +12,7 @@ class Game:
         self.clock = pygame.time.Clock()
         self.level = Level()
         self.start_menu = StartMenu()
-        self.end_menu = End()
+        self.end_menu = EndMenu()
         # changing the title of the window
         pygame.display.set_caption("The Legend of Valdoria")
         self.vid = Video("Intro/Valdoria Intro.mp4")
@@ -62,7 +62,6 @@ class Game:
     # main loop
     def run(self):
         
-        
         while True:
             # check the events, and if it is QUIT event then close the game
             for event in pygame.event.get():
@@ -70,10 +69,33 @@ class Game:
                     pygame.quit()
                     sys.exit()
             
-            self.screen.fill('green')
             self.level.run()
             pygame.display.update()
             self.clock.tick(FPS)
+
+            if Player.dead:
+                break
+        
+        self.end()
+            
+    
+    def end(self):
+        
+        while True:
+            events = pygame.event.get()
+            for event in events:
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                
+            end = self.end_menu.display(events)
+            pygame.display.update()
+
+            if end:
+                break
+        Player.dead = False
+        self.start()
+                
 
 
 if __name__ == "__main__":

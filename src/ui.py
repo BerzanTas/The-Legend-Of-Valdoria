@@ -157,7 +157,8 @@ class UI:
                 self.upgrade_box((self.stat_box_x + 5*STAT_BOX_SIZE + 33, 625), 'speed', player)
         self.mouse_was_pressed = self.mouse_clicked
 
-class StartMenu:
+
+class Menu:
     def __init__(self) -> None:
         self.box_width = 300
         self.box_height = 60
@@ -167,19 +168,9 @@ class StartMenu:
         self.text_color = '#fc4f53'
 
         self.display_surface = pygame.display.get_surface()
-
-        self.color_inactive = pygame.Color('gray')
-        self.color_active = pygame.Color('#fc4f53')
-        self.color = self.color_inactive
-
-        self.active = False
-        self.username = 'Username'
-        self.can_write = True
-
         self.font = pygame.font.Font(UI_FONT, 34)
         self.x = 490
         self.y = 240
-        self.username_input = pygame.Rect(self.x, self.y, self.box_width, self.box_height)
 
     def menu_box(self, text: str, x, y, events):
         bg_rect = pygame.Rect(x+10, y, self.box_width-20, self.box_height)
@@ -195,6 +186,18 @@ class StartMenu:
         self.display_surface.blit(text, text_rect)
 
         return bg_rect
+
+class StartMenu(Menu):
+    def __init__(self) -> None:
+        super().__init__()
+        self.color_inactive = pygame.Color('gray')
+        self.color_active = pygame.Color('#fc4f53')
+        self.color = self.color_inactive
+
+        self.active = False
+        self.username = 'Username'
+        self.can_write = True
+        self.username_input = pygame.Rect(self.x, self.y, self.box_width, self.box_height)
 
     def get_input(self, input_box, events):
 
@@ -249,5 +252,19 @@ class StartMenu:
 
 
 
-class End():
-    pass
+class EndMenu(Menu):
+    def __init__(self) -> None:
+        super().__init__()
+
+    def display(self, events):
+        self.display_surface.blit(self.bg, (0,0))
+        try_again = self.menu_box("Try Again", self.x,self.y+100, events)
+        quit_button = self.menu_box("Quit", self.x, self.y+250, events)
+
+        for event in events:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if try_again.collidepoint(event.pos):
+                    return True
+                elif quit_button.collidepoint(event.pos):
+                    sys.exit()
+        
